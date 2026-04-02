@@ -1,0 +1,12 @@
+{
+  "name": "shenxun-ai-coach-frontend",
+  "version": "1.0.0",
+  "description": "深寻觅 AI Coach 前端",
+  "scripts": {
+    "start": "npx http-server -p 3000 -c-1 --cors",
+    "dev": "npx http-server -p 3000 -c-1 --cors -o"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

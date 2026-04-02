@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="个人中心 - 深觅 AI Coach">
+    <title>个人中心 - 深觅 AI Coach</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="../styles/variables.css">
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/layout.css">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body class="page--with-header page--with-bottom-nav">
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="container header__inner">
+            <a href="/" class="header__logo">
+                <svg class="header__logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" fill="url(#logo-gradient)"/>
+                    <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#4A90D9"/>
+                            <stop offset="100%" stop-color="#1E3A5F"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="header__logo-text">深觅</span>
+            </a>
+
+            <nav class="header__nav hidden-sm">
+                <a href="/" class="header__nav-link">首页</a>
+                <a href="/assessment/index.html" class="header__nav-link">测评中心</a>
+                <a href="/chat/index.html" class="header__nav-link">AI 对话</a>
+            </nav>
+
+            <div class="header__user-actions">
+                <button class="btn btn--ghost btn--md" onclick="auth.logout(); window.location.href='/'; ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    退出
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="page__content">
+        <div class="container py-8">
+            <!-- 用户信息卡片 -->
+            <div class="user-profile-card" data-animate="fade-up">
+                <div class="user-profile-card__avatar">
+                    <span id="userAvatar">U</span>
+                </div>
+                <div class="user-profile-card__info">
+                    <h1 class="user-profile-card__name" id="userName">用户</h1>
+                    <p class="user-profile-card__email" id="userEmail">user@example.com</p>
+                    <div class="user-profile-card__meta">
+                        <span class="user-badge user-badge--free">免费版</span>
+                        <span class="user-join-date">加入于 <span id="joinDate">2024年1月</span></span>
+                    </div>
+                </div>
+                <button class="btn btn--ghost" onclick="showEditProfileModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    编辑资料
+                </button>
+            </div>
+
+            <!-- 使用统计 -->
+            <div class="stats-grid" data-animate="fade-up" data-animate-delay="100">
+                <div class="stat-card">
+                    <div class="stat-card__value" id="assessmentCount">0</div>
+                    <div class="stat-card__label">完成测评</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value" id="conversationCount">0</div>
+                    <div class="stat-card__label">AI 对话</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value" id="messageCount">0</div>
+                    <div class="stat-card__label">发送消息</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value" id="daysActive">0</div>
+                    <div class="stat-card__label">活跃天数</div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="tabs-nav" data-animate="fade-up" data-animate-delay="200">
+                <button class="tab-btn tab-btn--active" data-tab="profile" onclick="switchTab('profile')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    个人资料
+                </button>
+                <button class="tab-btn" data-tab="subscription" onclick="switchTab('subscription')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    订阅管理
+                </button>
+                <button class="tab-btn" data-tab="history" onclick="switchTab('history')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    历史记录
+                </button>
+                <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    设置
+                </button>
+            </div>
+
+            <!-- 标签页内容 -->
+            <div class="tab-content">
+                <!-- 个人资料 -->
+                <div class="tab-panel tab-panel--active" id="profile-panel">
+                    <div class="settings-card">
+                        <h3 class="settings-card__title">基本信息</h3>
+                        <form id="profileForm" class="settings-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">昵称</label>
+                                    <input type="text" name="nickname" class="form-control form-control--md" id="editNickname" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">邮箱</label>
+                                    <input type="email" name="email" class="form-control form-control--md" id="editEmail" value="" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">个人简介</label>
+                                <textarea name="bio" class="form-control form-control--md" rows="3" placeholder="介绍一下自己..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn--primary">保存修改</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3 class="settings-card__title">修改密码</h3>
+                        <form id="passwordForm" class="settings-form">
+                            <div class="form-group">
+                                <label class="form-label">当前密码</label>
+                                <input type="password" name="currentPassword" class="form-control form-control--md" placeholder="请输入当前密码">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">新密码</label>
+                                <input type="password" name="newPassword" class="form-control form-control--md" placeholder="请输入新密码">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">确认新密码</label>
+                                <input type="password" name="confirmPassword" class="form-control form-control--md" placeholder="请再次输入新密码">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn--primary">修改密码</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 订阅管理 -->
+                <div class="tab-panel" id="subscription-panel">
+                    <div class="subscription-card subscription-card--current">
+                        <div class="subscription-card__header">
+                            <div>
+                                <h3 class="subscription-card__name">免费版</h3>
+                                <p class="subscription-card__desc">当前订阅</p>
+                            </div>
+                            <span class="subscription-card__price">¥0<span>/月</span></span>
+                        </div>
+                        <ul class="subscription-card__features">
+                            <li>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                1 次 VIA 优势测评
+                            </li>
+                            <li>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                每日 3 次 AI 对话
+                            </li>
+                            <li>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                基础测评报告
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="subscription-plans">
+                        <h3 class="section-title">升级订阅</h3>
+                        <div class="plans-grid">
+                            <div class="plan-card">
+                                <div class="plan-card__header">
+                                    <h4 class="plan-card__name">专业版</h4>
+                                    <p class="plan-card__desc">适合个人深度成长</p>
+                                </div>
+                                <div class="plan-card__price">
+                                    <span class="plan-card__amount">¥29</span>
+                                    <span class="plan-card__period">/月</span>
+                                </div>
+                                <ul class="plan-card__features">
+                                    <li>无限次 VIA 测评</li>
+                                    <li>每日 20 次 AI 对话</li>
+                                    <li>详细测评报告</li>
+                                    <li>成长追踪功能</li>
+                                </ul>
+                                <button class="btn btn--primary btn--block" onclick="showToast('功能开发中', 'info')">立即升级</button>
+                            </div>
+
+                            <div class="plan-card plan-card--highlighted">
+                                <div class="plan-card__badge">推荐</div>
+                                <div class="plan-card__header">
+                                    <h4 class="plan-card__name">高级版</h4>
+                                    <p class="plan-card__desc">全方位成长支持</p>
+                                </div>
+                                <div class="plan-card__price">
+                                    <span class="plan-card__amount">¥79</span>
+                                    <span class="plan-card__period">/月</span>
+                                </div>
+                                <ul class="plan-card__features">
+                                    <li>无限次 VIA 测评</li>
+                                    <li>无限 AI 对话</li>
+                                    <li>专家级测评报告</li>
+                                    <li>专属成长计划</li>
+                                    <li>1对1 教练指导</li>
+                                </ul>
+                                <button class="btn btn--accent btn--block" onclick="showToast('功能开发中', 'info')">立即升级</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div class="tab-panel" id="history-panel">
+                    <div class="history-section">
+                        <h3 class="section-title">测评历史</h3>
+                        <div id="assessmentHistoryList" class="history-list">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M9 11l3 3L22 4"/>
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                </svg>
+                                <p>暂无测评记录</p>
+                                <a href="/assessment/index.html" class="btn btn--primary btn--sm">开始测评</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="history-section">
+                        <h3 class="section-title">对话历史</h3>
+                        <div id="conversationHistoryList" class="history-list">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                                <p>暂无对话记录</p>
+                                <a href="/chat/index.html" class="btn btn--primary btn--sm">开始对话</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设置 -->
+                <div class="tab-panel" id="settings-panel">
+                    <div class="settings-card">
+                        <h3 class="settings-card__title">通知设置</h3>
+                        <div class="settings-list">
+                            <label class="setting-item">
+                                <div class="setting-item__info">
+                                    <span class="setting-item__name">邮件通知</span>
+                                    <span class="setting-item__desc">接收重要更新和提醒</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-switch__slider"></span>
+                                </label>
+                            </label>
+                            <label class="setting-item">
+                                <div class="setting-item__info">
+                                    <span class="setting-item__name">每周报告</span>
+                                    <span class="setting-item__desc">接收个人成长周报</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-switch__slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3 class="settings-card__title">隐私设置</h3>
+                        <div class="settings-list">
+                            <label class="setting-item">
+                                <div class="setting-item__info">
+                                    <span class="setting-item__name">公开个人资料</span>
+                                    <span class="setting-item__desc">允许其他用户查看您的基本信息</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-switch__slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-card settings-card--danger">
+                        <h3 class="settings-card__title">危险操作</h3>
+                        <div class="danger-actions">
+                            <button class="btn btn--danger btn--outline" onclick="deleteAccount()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                                删除账号
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部导航（移动端） -->
+    <nav class="bottom-nav md:hidden">
+        <a href="/" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span class="bottom-nav__label">首页</span>
+        </a>
+        <a href="/assessment/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            <span class="bottom-nav__label">测评</span>
+        </a>
+        <a href="/chat/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="bottom-nav__label">对话</span>
+        </a>
+        <a href="/user/index.html" class="bottom-nav__item bottom-nav__item--active">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="bottom-nav__label">我的</span>
+        </a>
+    </nav>
+
+    <!-- JavaScript -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // 检查登录状态
+        if (!localStorage.getItem('access_token')) {
+            sessionStorage.setItem('redirect_after_login', window.location.href);
+            window.location.href = '/login.html';
+        }
+
+        // 加载用户信息
+        async function loadUserInfo() {
+            try {
+                const user = await api.user.getMe();
+                
+                // 更新用户信息展示
+                document.getElementById('userName').textContent = user.nickname || '用户';
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userAvatar').textContent = (user.nickname || 'U')[0].toUpperCase();
+                document.getElementById('editNickname').value = user.nickname || '';
+                document.getElementById('editEmail').value = user.email;
+                
+                if (user.created_at) {
+                    document.getElementById('joinDate').textContent = formatDate(user.created_at, 'YYYY年M月');
+                }
+
+                // 更新统计数据
+                if (user.usage_stats) {
+                    document.getElementById('assessmentCount').textContent = user.usage_stats.assessment_count || 0;
+                    document.getElementById('conversationCount').textContent = user.usage_stats.conversation_count || 0;
+                    document.getElementById('messageCount').textContent = user.usage_stats.message_count || 0;
+                    document.getElementById('daysActive').textContent = user.usage_stats.days_active || 0;
+                }
+            } catch (error) {
+                console.error('加载用户信息失败:', error);
+                showToast('加载用户信息失败', 'error');
+            }
+        }
+
+        // 加载历史记录
+        async function loadHistory() {
+            try {
+                // 加载测评历史
+                const assessments = await api.user.getAssessments(1, 5);
+                const assessmentList = document.getElementById('assessmentHistoryList');
+                
+                if (assessments.items && assessments.items.length > 0) {
+                    assessmentList.innerHTML = assessments.items.map(a => `
+                        <div class="history-item">
+                            <div class="history-item__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 11l3 3L22 4"/>
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                </svg>
+                            </div>
+                            <div class="history-item__content">
+                                <span class="history-item__title">VIA 优势测评</span>
+                                <span class="history-item__date">${formatDate(a.created_at, 'YYYY-MM-DD')}</span>
+                            </div>
+                            <a href="/assessment/result.html?id=${a.assessment_id}" class="history-item__link">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    `).join('');
+                }
+
+                // 加载对话历史
+                const conversations = await api.user.getConversations(1, 5);
+                const conversationList = document.getElementById('conversationHistoryList');
+                
+                if (conversations.items && conversations.items.length > 0) {
+                    conversationList.innerHTML = conversations.items.map(c => `
+                        <div class="history-item">
+                            <div class="history-item__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="history-item__content">
+                                <span class="history-item__title">${c.title || '新对话'}</span>
+                                <span class="history-item__date">${getRelativeTime(c.updated_at || c.created_at)}</span>
+                            </div>
+                            <a href="/chat/index.html?id=${c.conversation_id}" class="history-item__link">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </a>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载历史记录失败:', error);
+            }
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            // 更新按钮状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('tab-btn--active', btn.dataset.tab === tabName);
+            });
+
+            // 更新面板显示
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.toggle('tab-panel--active', panel.id === tabName + '-panel');
+            });
+        }
+
+        // 编辑资料
+        function showEditProfileModal() {
+            switchTab('profile');
+            document.getElementById('editNickname').focus();
+        }
+
+        // 删除账号
+        function deleteAccount() {
+            if (confirm('确定要删除账号吗？此操作不可恢复！')) {
+                showToast('功能开发中', 'info');
+            }
+        }
+
+        // 表单提交
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const nickname = document.getElementById('editNickname').value;
+            
+            const result = await auth.updateUserInfo({ nickname });
+            if (result.success) {
+                showToast('资料已更新', 'success');
+                document.getElementById('userName').textContent = nickname;
+                document.getElementById('userAvatar').textContent = nickname[0].toUpperCase();
+            } else {
+                showToast(result.error, 'error');
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const currentPassword = formData.get('currentPassword');
+            const newPassword = formData.get('newPassword');
+            const confirmPassword = formData.get('confirmPassword');
+
+            if (newPassword !== confirmPassword) {
+                showToast('两次输入的密码不一致', 'warning');
+                return;
+            }
+
+            try {
+                await api.user.changePassword(currentPassword, newPassword);
+                showToast('密码已修改', 'success');
+                this.reset();
+            } catch (error) {
+                showToast(error.message || '修改密码失败', 'error');
+            }
+        });
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserInfo();
+            loadHistory();
+        });
+    </script>
+
+    <style>
+        /* 用户资料卡片 */
+        .user-profile-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .user-profile-card__avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-profile-card__info {
+            flex: 1;
+        }
+
+        .user-profile-card__name {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .user-profile-card__email {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+
+        .user-profile-card__meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .user-badge--free {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .user-join-date {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            text-align: center;
+        }
+
+        .stat-card__value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .stat-card__label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 标签页导航 */
+        .tabs-nav {
+            display: flex;
+            gap: var(--space-2);
+            border-bottom: 1px solid var(--border-light);
+            margin-bottom: var(--space-6);
+            overflow-x: auto;
+            padding-bottom: var(--space-1);
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-4);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-medium);
+            white-space: nowrap;
+            border-radius: var(--radius-lg);
+            transition: all var(--duration-fast);
+        }
+
+        .tab-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .tab-btn--active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        /* 标签页内容 */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel--active {
+            display: block;
+        }
+
+        /* 设置卡片 */
+        .settings-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .settings-card__title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+        }
+
+        .settings-form .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        @media (max-width: 640px) {
+            .settings-form .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-actions {
+            margin-top: var(--space-4);
+        }
+
+        /* 设置列表 */
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4) 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item__name {
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+
+        .setting-item__desc {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* 开关 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-switch__slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--border-medium);
+            border-radius: var(--radius-full);
+            transition: all var(--duration-fast);
+        }
+
+        .toggle-switch__slider::before {
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: var(--radius-full);
+            transition: all var(--duration-fast);
+        }
+
+        .toggle-switch input:checked + .toggle-switch__slider {
+            background: var(--color-primary);
+        }
+
+        .toggle-switch input:checked + .toggle-switch__slider::before {
+            transform: translateX(22px);
+        }
+
+        /* 订阅卡片 */
+        .subscription-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .subscription-card--current {
+            border: 2px solid var(--color-primary);
+        }
+
+        .subscription-card__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .subscription-card__name {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+        }
+
+        .subscription-card__desc {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .subscription-card__price {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+
+        .subscription-card__price span {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-normal);
+            color: var(--text-muted);
+        }
+
+        .subscription-card__features {
+            list-style: none;
+        }
+
+        .subscription-card__features li {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+            color: var(--text-secondary);
+        }
+
+        .subscription-card__features svg {
+            color: var(--color-success);
+        }
+
+        /* 套餐网格 */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        @media (max-width: 640px) {
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .plan-card {
+            position: relative;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            border: 2px solid var(--border-light);
+        }
+
+        .plan-card--highlighted {
+            border-color: var(--color-accent);
+        }
+
+        .plan-card__badge {
+            position: absolute;
+            top: -10px;
+            right: var(--space-4);
+            padding: var(--space-1) var(--space-3);
+            background: var(--color-accent);
+            color: white;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            border-radius: var(--radius-full);
+        }
+
+        .plan-card__header {
+            margin-bottom: var(--space-4);
+        }
+
+        .plan-card__name {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+
+        .plan-card__desc {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .plan-card__price {
+            margin-bottom: var(--space-4);
+        }
+
+        .plan-card__amount {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+        }
+
+        .plan-card__period {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+
+        .plan-card__features {
+            list-style: none;
+            margin-bottom: var(--space-6);
+        }
+
+        .plan-card__features li {
+            margin-bottom: var(--space-2);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        /* 历史记录 */
+        .history-section {
+            margin-bottom: var(--space-8);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+        }
+
+        .history-item__icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-lg);
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-primary);
+            flex-shrink: 0;
+        }
+
+        .history-item__content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-item__title {
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+
+        .history-item__date {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .history-item__link {
+            color: var(--text-muted);
+        }
+
+        .history-item__link:hover {
+            color: var(--color-primary);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            margin: 0 auto var(--space-4);
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            margin-bottom: var(--space-4);
+        }
+
+        /* 危险操作 */
+        .settings-card--danger {
+            border: 1px solid var(--color-error);
+        }
+
+        .danger-actions {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        /* 动画 */
+        [data-animate] {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        [data-animate].animate--visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.5s ease;
+        }
+    </style>
+</body>
+</html>

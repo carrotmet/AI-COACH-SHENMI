@@ -1,0 +1,62 @@
+# ============================================
+# LiteLLM 配置文件
+# 报告生成模块V3 - 模型路由配置
+# ============================================
+
+model_list:
+  # Kimi 轻量级模型（首选、回退目标）
+  - model_name: kimi-k2-turbo-preview
+    litellm_params:
+      model: openai/kimi-k2-turbo-preview
+      api_base: https://api.moonshot.cn/v1
+      api_key: os.environ/LAZYLLM_KIMI_API_KEY
+      temperature: 0.7
+      max_tokens: 4000
+      timeout: 60
+  
+  # Moonshot V1 8K（更轻量的备选）
+  - model_name: moonshot-v1-8k
+    litellm_params:
+      model: openai/moonshot-v1-8k
+      api_base: https://api.moonshot.cn/v1
+      api_key: os.environ/LAZYLLM_KIMI_API_KEY
+      temperature: 0.7
+      max_tokens: 4000
+      timeout: 60
+      
+  # Kimi 2.5 强模型（复杂任务，失败时回退到轻量模型）
+  - model_name: kimi-k2.5
+    litellm_params:
+      model: openai/kimi-k2.5
+      api_base: https://api.moonshot.cn/v1
+      api_key: os.environ/LAZYLLM_KIMI_API_KEY
+      temperature: 1.0
+      max_tokens: 4000
+      timeout: 120
+
+# 模型别名（场景路由）
+model_alias:
+  # 报告生成场景
+  # 标准章节使用轻量模型
+  report-chapter-standard: kimi-k2-turbo-preview
+  # 深度分析使用强模型（失败时回退到轻量模型）
+  report-chapter-deep: kimi-k2.5
+  
+  # RAG对话场景（需要快速响应）
+  rag-chat: kimi-k2-turbo-preview
+  rag-chat-fallback: moonshot-v1-8k
+  
+  # 默认模型
+  default: kimi-k2-turbo-preview
+  default-fallback: moonshot-v1-8k
+
+# 路由策略
+router_settings:
+  # 回退策略：从复杂/强模型回退到简单/轻量模型
+  fallback_strategy:
+    # kimi-k2.5 失败时回退到轻量的 turbo-preview
+    - model: kimi-k2.5
+      fallback: [kimi-k2-turbo-preview, moonshot-v1-8k]
+    # turbo-preview 失败时回退到更轻的 moonshot-v1-8k
+    - model: kimi-k2-turbo-preview
+      fallback: [moonshot-v1-8k]

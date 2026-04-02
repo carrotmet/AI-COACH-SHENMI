@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="VIA 性格优势测评 - 深觅 AI Coach">
+    <title>优势测评 - 深觅 AI Coach</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="../styles/variables.css">
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/layout.css">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body class="assessment-layout">
+    <!-- 进度条 -->
+    <div class="assessment-layout__progress">
+        <div class="progress-header">
+            <a href="index.html" class="progress-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                退出测评
+            </a>
+            <span class="progress-label">
+                进度 <span id="progressText">0%</span>
+            </span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-bar__fill" id="progressBar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- 题目内容 -->
+    <div class="assessment-layout__content">
+        <div id="questionContainer">
+            <!-- 动态加载题目 -->
+            <div class="loading-question">
+                <div class="loading-spinner"></div>
+                <p>正在加载题目...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="assessment-layout__footer">
+        <button class="btn btn--ghost" id="prevBtn" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            上一题
+        </button>
+        <span class="question-counter" id="questionCounter">1 / 34</span>
+        <button class="btn btn--ghost" id="saveBtn" onclick="saveProgress()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            保存进度
+        </button>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div class="modal-container" id="exitModal">
+        <div class="modal-overlay" onclick="hideModal('exitModal')"></div>
+        <div class="modal modal--sm">
+            <div class="modal__header">
+                <h3 class="modal__title">确认退出？</h3>
+                <button class="modal__close" onclick="hideModal('exitModal')">&times;</button>
+            </div>
+            <div class="modal__body">
+                <p>您的测评进度已自动保存，可以随时回来继续。</p>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" onclick="hideModal('exitModal')">继续测评</button>
+                <a href="index.html" class="btn btn--primary">确认退出</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/assessment.js"></script>
+
+    <script>
+        // 检查登录状态
+        if (!localStorage.getItem('access_token')) {
+            // 保存当前页面，登录后返回
+            sessionStorage.setItem('redirect_after_login', window.location.href);
+            window.location.href = '/login.html';
+        }
+
+        // 初始化测评
+        let currentQuestion = null;
+        let totalQuestions = 24;
+        let currentIndex = 0;
+
+        // VIA 24性格优势测评题目（完整版）
+        const mockQuestions = [
+            // ========== 智慧与知识 (Wisdom & Knowledge) ==========
+            { id: 1, text: "我喜欢学习和探索新知识，对世界充满好奇", category: "智慧与知识", strength: "好奇心" },
+            { id: 2, text: "我善于从不同角度思考问题，提出创新的解决方案", category: "智慧与知识", strength: "创造力" },
+            { id: 3, text: "我在做决策时会仔细权衡各种证据和可能性", category: "智慧与知识", strength: "判断力" },
+            { id: 4, text: "我热爱学习新技能，享受掌握新知识的过程", category: "智慧与知识", strength: "热爱学习" },
+            { id: 5, text: "朋友们经常来找我寻求建议，因为我能提供有价值的观点", category: "智慧与知识", strength: "洞察力" },
+            // ========== 勇气 (Courage) ==========
+            { id: 6, text: "即使面对困难和恐惧，我也能坚持自己的信念并采取行动", category: "勇气", strength: "勇敢" },
+            { id: 7, text: "我能够坚持不懈地追求目标，即使遇到挫折也不轻易放弃", category: "勇气", strength: "毅力" },
+            { id: 8, text: "我总是诚实地表达自己的想法，即使这可能会让我处于不利地位", category: "勇气", strength: "诚实" },
+            { id: 9, text: "我对生活充满热情和活力，总是积极投入各种活动", category: "勇气", strength: "热情" },
+            // ========== 人道 (Humanity) ==========
+            { id: 10, text: "我能够与他人建立亲密、温暖的关系，珍惜亲密关系", category: "人道", strength: "爱与被爱" },
+            { id: 11, text: "我经常帮助他人，乐于为他人做好事而不求回报", category: "人道", strength: "善良" },
+            { id: 12, text: "我善于理解他人的感受和动机，能够根据情况调整自己的行为", category: "人道", strength: "社交智慧" },
+            // ========== 正义 (Justice) ==========
+            { id: 13, text: "我在团队中能够很好地与他人合作，为共同目标努力", category: "正义", strength: "团队合作" },
+            { id: 14, text: "我重视公平，会确保每个人都得到应有的对待", category: "正义", strength: "公平" },
+            { id: 15, text: "我能够激励和引导他人，帮助他们发挥潜力", category: "正义", strength: "领导力" },
+            // ========== 节制 (Temperance) ==========
+            { id: 16, text: "我能够原谅曾经伤害过我的人，不会一直怀恨在心", category: "节制", strength: "宽恕" },
+            { id: 17, text: "我对自己有客观的认识，不会过分炫耀自己的成就", category: "节制", strength: "谦逊" },
+            { id: 18, text: "我在做决定时会谨慎考虑，不会冲动行事", category: "节制", strength: "审慎" },
+            { id: 19, text: "我能够控制自己的冲动和情绪，不会轻易被欲望左右", category: "节制", strength: "自我调节" },
+            // ========== 超越 (Transcendence) ==========
+            { id: 20, text: "我能够欣赏艺术、自然和生活中的美好事物", category: "超越", strength: "审美" },
+            { id: 21, text: "我经常对生活中的好事心存感激，会表达我的感谢", category: "超越", strength: "感恩" },
+            { id: 22, text: "我对未来充满希望和乐观，相信事情会向好的方向发展", category: "超越", strength: "希望" },
+            { id: 23, text: "我喜欢让周围的人开心，善于用幽默化解紧张气氛", category: "超越", strength: "幽默" },
+            { id: 24, text: "我相信生命有更高的意义和目的，这给了我内心的指引", category: "超越", strength: "灵性" }
+        ].map(q => ({
+            ...q,
+            options: [
+                { id: 1, text: "非常不符合" },
+                { id: 2, text: "不太符合" },
+                { id: 3, text: "一般" },
+                { id: 4, text: "比较符合" },
+                { id: 5, text: "非常符合" }
+            ]
+        }));
+
+        // 初始化
+        async function initAssessment() {
+            try {
+                // 尝试恢复之前的进度
+                const hasProgress = assessmentManager.restoreProgress();
+                
+                if (hasProgress) {
+                    // 有保存的进度，询问是否继续
+                    if (confirm('检测到未完成的测评，是否继续？')) {
+                        currentIndex = assessmentManager.currentQuestionIndex;
+                        totalQuestions = assessmentManager.currentAssessment.totalQuestions;
+                    } else {
+                        // 开始新测评
+                        assessmentManager.clearProgress();
+                        await startNewAssessment();
+                    }
+                } else {
+                    // 开始新测评
+                    await startNewAssessment();
+                }
+
+                // 显示当前题目
+                showQuestion(currentIndex);
+            } catch (error) {
+                console.error('初始化测评失败:', error);
+                showToast('初始化失败，请刷新页面重试', 'error');
+            }
+        }
+
+        // 开始新测评
+        async function startNewAssessment() {
+            const result = await assessmentManager.startAssessment('via_strengths');
+            if (result.success) {
+                totalQuestions = result.data.totalQuestions;
+                currentIndex = 0;
+            } else {
+                showToast(result.error, 'error');
+            }
+        }
+
+        // 显示题目
+        function showQuestion(index) {
+            // 使用模拟数据或从API获取
+            const question = mockQuestions[index % mockQuestions.length];
+            currentQuestion = question;
+
+            const container = document.getElementById('questionContainer');
+            const progress = Math.round((index / totalQuestions) * 100);
+
+            container.innerHTML = `
+                <div class="question-card" data-animate="fade-in">
+                    <div class="question-card__category">${question.category} · ${question.strength}</div>
+                    <div class="question-card__number">题目 ${index + 1} / ${totalQuestions}</div>
+                    <h2 class="question-card__text">${question.text}</h2>
+                    <div class="options-list">
+                        ${question.options.map((option, i) => `
+                            <label class="option-item" data-option="${option.id}" style="animation-delay: ${i * 50}ms">
+                                <span class="option-item__radio"></span>
+                                <span class="option-item__text">${option.text}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // 更新进度
+            updateProgress(progress);
+            document.getElementById('questionCounter').textContent = `${index + 1} / ${totalQuestions}`;
+            document.getElementById('prevBtn').disabled = index === 0;
+
+            // 绑定选项点击事件
+            container.querySelectorAll('.option-item').forEach(item => {
+                item.addEventListener('click', async () => {
+                    // 移除其他选中状态
+                    container.querySelectorAll('.option-item').forEach(i => {
+                        i.classList.remove('option-item--selected');
+                    });
+                    // 添加当前选中状态
+                    item.classList.add('option-item--selected');
+
+                    // 获取答案
+                    const answer = item.dataset.option;
+                    const score = parseInt(answer);
+
+                    // 禁用选项
+                    container.querySelectorAll('.option-item').forEach(i => {
+                        i.style.pointerEvents = 'none';
+                    });
+
+                    // 提交答案到后端
+                    try {
+                        const assessmentId = assessmentManager.currentAssessment.id;
+                        const questionId = currentQuestion.id;
+                        
+                        const result = await api.assessment.submitAnswer(assessmentId, questionId, score);
+                        
+                        if (result.is_completed) {
+                            // 测评完成，获取结果
+                            showCompletion();
+                        } else if (result.next_question) {
+                            // 显示下一题
+                            currentIndex++;
+                            showQuestion(currentIndex);
+                        } else {
+                            currentIndex++;
+                            showQuestion(currentIndex);
+                        }
+                    } catch (error) {
+                        console.error('提交答案失败:', error);
+                        showToast('提交失败: ' + error.message, 'error');
+                        // 恢复选项可点击
+                        container.querySelectorAll('.option-item').forEach(i => {
+                            i.style.pointerEvents = '';
+                        });
+                    }
+                });
+            });
+        }
+
+        // 更新进度条
+        function updateProgress(percent) {
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').textContent = percent + '%';
+        }
+
+        // 上一题
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showQuestion(currentIndex);
+            }
+        });
+
+        // 保存进度
+        function saveProgress() {
+            assessmentManager.saveProgress();
+            showToast('进度已保存', 'success');
+        }
+
+        // 显示完成
+        async function showCompletion() {
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `
+                <div class="completion-card" data-animate="fade-up">
+                    <div class="completion-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <h2 class="completion-title">恭喜您完成测评！</h2>
+                    <p class="completion-description">
+                        我们正在为您生成详细的个人优势分析报告，请稍候...
+                    </p>
+                    <div class="completion-loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            `;
+
+            // 调用完成 API 获取结果
+            try {
+                const assessmentId = assessmentManager.currentAssessment.id;
+                const result = await api.assessment.getResult(assessmentId);
+                
+                // 清除本地进度
+                assessmentManager.clearProgress();
+                
+                // 跳转到结果页
+                window.location.href = `result.html?id=${assessmentId}`;
+            } catch (error) {
+                console.error('获取结果失败:', error);
+                showToast('生成报告失败: ' + error.message, 'error');
+                // 即使失败也跳转，让结果页处理
+                setTimeout(() => {
+                    const assessmentId = assessmentManager.currentAssessment?.id || 'demo';
+                    window.location.href = `result.html?id=${assessmentId}`;
+                }, 2000);
+            }
+        }
+
+        // 退出确认
+        document.querySelector('.progress-back').addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('exitModal');
+        });
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initAssessment);
+    </script>
+
+    <style>
+        /* 测评布局 */
+        .assessment-layout {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+
+        .assessment-layout__progress {
+            position: sticky;
+            top: 0;
+            z-index: var(--z-sticky);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            padding: var(--space-3) var(--space-4);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-3);
+        }
+
+        .progress-back {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .progress-back:hover {
+            color: var(--color-primary);
+        }
+
+        .progress-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border-light);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-bar__fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+
+        .assessment-layout__content {
+            flex: 1;
+            padding: var(--space-6) var(--space-4);
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .assessment-layout__footer {
+            position: sticky;
+            bottom: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-light);
+            padding: var(--space-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+        }
+
+        .question-counter {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 题目卡片 */
+        .question-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .question-card__number {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-primary);
+            margin-bottom: var(--space-3);
+        }
+
+        .question-card__category {
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--space-2);
+        }
+
+        .question-card__text {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            line-height: var(--line-height-relaxed);
+            margin-bottom: var(--space-8);
+        }
+
+        /* 选项列表 */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .option-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            animation: slideUp 0.3s ease backwards;
+        }
+
+        .option-item:hover {
+            border-color: var(--border-medium);
+            transform: translateX(4px);
+        }
+
+        .option-item--selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .option-item__radio {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border-medium);
+            border-radius: var(--radius-full);
+            flex-shrink: 0;
+            margin-top: 2px;
+            transition: all var(--duration-fast);
+        }
+
+        .option-item--selected .option-item__radio {
+            border-color: var(--color-primary);
+            background: var(--color-primary);
+            box-shadow: inset 0 0 0 5px var(--color-primary-light);
+        }
+
+        .option-item__text {
+            font-size: var(--font-size-base);
+            color: var(--text-primary);
+            line-height: var(--line-height-relaxed);
+        }
+
+        /* 加载状态 */
+        .loading-question {
+            text-align: center;
+            padding: var(--space-12);
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-light);
+            border-top-color: var(--color-primary);
+            border-radius: var(--radius-full);
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--space-4);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 完成卡片 */
+        .completion-card {
+            text-align: center;
+            padding: var(--space-12) var(--space-6);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .completion-icon {
+            width: 96px;
+            height: 96px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--success-400), var(--success-600));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-6);
+            color: white;
+        }
+
+        .completion-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-3);
+        }
+
+        .completion-description {
+            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+        }
+
+        .completion-loading {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 模态框 */
+        .modal-container {
+            position: fixed;
+            inset: 0;
+            z-index: var(--z-modal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--duration-normal);
+        }
+
+        .modal-container:target,
+        .modal-container.modal--open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-overlay);
+        }
+
+        .modal {
+            position: relative;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 480px;
+            z-index: 1;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .modal--sm {
+            max-width: 360px;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4) var(--space-6);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal__title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+
+        .modal__close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: var(--font-size-xl);
+        }
+
+        .modal__close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .modal__body {
+            padding: var(--space-6);
+            color: var(--text-secondary);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .modal__footer {
+            display: flex;
+            gap: var(--space-3);
+            padding: var(--space-4) var(--space-6);
+            border-top: 1px solid var(--border-light);
+            justify-content: flex-end;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="深觅 AI Coach - 基于AI的个人成长教练平台，帮助您发现优势、实现自我成长">
+    <meta name="keywords" content="AI教练,优势测评,个人成长,VIA性格优势,职业规划">
+    <title>深觅 AI Coach - 发现您的优势，成就更好的自己</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/layout.css">
+    
+    <!-- 图标 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+    <!-- 跳过链接（无障碍） -->
+    <a href="#main-content" class="skip-link">跳转到主要内容</a>
+
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="container header__inner">
+            <!-- Logo -->
+            <a href="/" class="header__logo">
+                <svg class="header__logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" fill="url(#logo-gradient)"/>
+                    <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#4A90D9"/>
+                            <stop offset="100%" stop-color="#1E3A5F"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="header__logo-text">深觅</span>
+            </a>
+
+            <!-- 桌面导航 -->
+            <nav class="header__nav hidden-sm">
+                <a href="#features" class="header__nav-link">功能介绍</a>
+                <a href="#assessment" class="header__nav-link">优势测评</a>
+                <a href="/star/index.html" class="header__nav-link">我的星图</a>
+                <a href="#how-it-works" class="header__nav-link">使用流程</a>
+            </nav>
+
+            <!-- 用户操作 -->
+            <div class="header__user-actions">
+                <a href="/login.html" class="btn btn--ghost btn--md">登录</a>
+                <a href="/register.html" class="btn btn--primary btn--md hidden-sm">注册</a>
+            </div>
+
+            <!-- 移动端菜单按钮 -->
+            <button class="header__menu-toggle md:hidden" aria-label="打开菜单">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- 移动端菜单 -->
+    <div class="mobile-menu">
+        <div class="mobile-menu__overlay"></div>
+        <div class="mobile-menu__panel">
+            <div class="mobile-menu__header">
+                <span class="mobile-menu__title">菜单</span>
+                <button class="mobile-menu__close" aria-label="关闭菜单">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <nav class="mobile-menu__nav">
+                <a href="#features" class="mobile-menu__link">功能介绍</a>
+                <a href="#assessment" class="mobile-menu__link">优势测评</a>
+                <a href="/star/index.html" class="mobile-menu__link">我的星图</a>
+                <a href="#how-it-works" class="mobile-menu__link">使用流程</a>
+                <div class="mobile-menu__divider"></div>
+                <a href="/login.html" class="mobile-menu__link">登录</a>
+                <a href="/register.html" class="mobile-menu__link mobile-menu__link--primary">注册账号</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main id="main-content" class="page__content">
+        <!-- Hero 区域 -->
+        <section class="home-hero">
+            <div class="container">
+                <div class="home-hero__logo" data-animate="fade-up">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <h1 class="home-hero__title" data-animate="fade-up" data-animate-delay="100">
+                    发现您的优势<br>成就更好的自己
+                </h1>
+                <p class="home-hero__subtitle" data-animate="fade-up" data-animate-delay="200">
+                    基于 VIA 性格优势理论，结合 AI 技术，为您提供专业的个人成长指导和优势发展建议
+                </p>
+                <div class="home-hero__actions" data-animate="fade-up" data-animate-delay="300">
+                    <a href="/assessment/index.html" class="btn btn--primary btn--lg">
+                        <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        开始优势测评
+                    </a>
+                    <a href="#features" class="btn btn--outline btn--lg">了解更多</a>
+                </div>
+                
+                <!-- 数据统计 -->
+                <div class="hero-stats" data-animate="fade-up" data-animate-delay="400">
+                    <div class="hero-stats__item">
+                        <span class="hero-stats__number">10,000+</span>
+                        <span class="hero-stats__label">用户信赖</span>
+                    </div>
+                    <div class="hero-stats__item">
+                        <span class="hero-stats__number">98%</span>
+                        <span class="hero-stats__label">满意度</span>
+                    </div>
+                    <div class="hero-stats__item">
+                        <span class="hero-stats__number">24</span>
+                        <span class="hero-stats__label">优势维度</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能介绍 -->
+        <section id="features" class="feature-section">
+            <div class="container">
+                <div class="feature-section__header" data-animate="fade-up">
+                    <h2 class="feature-section__title">全方位助力您的成长</h2>
+                    <p class="feature-section__description">
+                        融合科学测评与 AI 技术，为您提供个性化的成长方案
+                    </p>
+                </div>
+
+                <div class="grid-layout grid-layout--3">
+                    <!-- 优势测评 -->
+                    <div class="feature-card" data-animate="fade-up" data-animate-delay="100">
+                        <div class="feature-card__icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 11l3 3L22 4"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-card__title">VIA 优势测评</h3>
+                        <p class="feature-card__description">
+                            基于国际认可的 VIA 性格优势理论，科学评估您的 24 项性格优势，发现您的核心竞争力
+                        </p>
+                    </div>
+
+                    <!-- AI 教练对话 -->
+                    <div class="feature-card" data-animate="fade-up" data-animate-delay="200">
+                        <div class="feature-card__icon" style="background: linear-gradient(135deg, var(--secondary-100), var(--secondary-200)); color: var(--color-secondary);">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-card__title">AI 优势教练</h3>
+                        <p class="feature-card__description">
+                            7×24 小时在线的 AI 教练，基于您的测评结果提供个性化指导，解答成长困惑
+                        </p>
+                    </div>
+
+                    <!-- 成长追踪 -->
+                    <div class="feature-card" data-animate="fade-up" data-animate-delay="300">
+                        <div class="feature-card__icon" style="background: linear-gradient(135deg, var(--accent-100), var(--accent-200)); color: var(--color-accent);">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-card__title">成长追踪</h3>
+                        <p class="feature-card__description">
+                            记录您的成长历程，可视化展示优势发展进度，让每一步进步都清晰可见
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 测评入口 -->
+        <section id="assessment" class="assessment-cta-section">
+            <div class="container">
+                <div class="assessment-cta" data-animate="fade-up">
+                    <div class="assessment-cta__content">
+                        <h2 class="assessment-cta__title">开启您的优势探索之旅</h2>
+                        <p class="assessment-cta__description">
+                            仅需 10-15 分钟完成测评，获取您的专属优势报告，了解自己在 24 项性格优势中的表现
+                        </p>
+                        <ul class="assessment-cta__features">
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                科学权威的 VIA 测评体系
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                详细的个人优势分析报告
+                            </li>
+                            <li>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                个性化的发展建议
+                            </li>
+                        </ul>
+                        <a href="/assessment/index.html" class="btn btn--accent btn--lg">
+                            免费开始测评
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="assessment-cta__visual">
+                        <div class="strength-preview">
+                            <div class="strength-preview__item" style="--strength-score: 92%;">
+                                <span class="strength-preview__name">战略思维</span>
+                                <div class="strength-preview__bar">
+                                    <div class="strength-preview__fill"></div>
+                                </div>
+                                <span class="strength-preview__score">92</span>
+                            </div>
+                            <div class="strength-preview__item" style="--strength-score: 88%;">
+                                <span class="strength-preview__name">学习力</span>
+                                <div class="strength-preview__bar">
+                                    <div class="strength-preview__fill"></div>
+                                </div>
+                                <span class="strength-preview__score">88</span>
+                            </div>
+                            <div class="strength-preview__item" style="--strength-score: 85%;">
+                                <span class="strength-preview__name">创造力</span>
+                                <div class="strength-preview__bar">
+                                    <div class="strength-preview__fill"></div>
+                                </div>
+                                <span class="strength-preview__score">85</span>
+                            </div>
+                            <div class="strength-preview__item" style="--strength-score: 82%;">
+                                <span class="strength-preview__name">社交智慧</span>
+                                <div class="strength-preview__bar">
+                                    <div class="strength-preview__fill"></div>
+                                </div>
+                                <span class="strength-preview__score">82</span>
+                            </div>
+                            <div class="strength-preview__item" style="--strength-score: 78%;">
+                                <span class="strength-preview__name">毅力</span>
+                                <div class="strength-preview__bar">
+                                    <div class="strength-preview__fill"></div>
+                                </div>
+                                <span class="strength-preview__score">78</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 使用流程 -->
+        <section id="how-it-works" class="feature-section" style="background: var(--bg-tertiary);">
+            <div class="container">
+                <div class="feature-section__header" data-animate="fade-up">
+                    <h2 class="feature-section__title">简单四步，发现优势</h2>
+                    <p class="feature-section__description">
+                        清晰的使用流程，让您轻松开启优势探索之旅
+                    </p>
+                </div>
+
+                <div class="steps">
+                    <div class="step" data-animate="fade-up" data-animate-delay="100">
+                        <div class="step__number">1</div>
+                        <h3 class="step__title">完成测评</h3>
+                        <p class="step__description">回答 34 道专业题目，约需 10-15 分钟</p>
+                    </div>
+                    <div class="step__connector"></div>
+                    <div class="step" data-animate="fade-up" data-animate-delay="200">
+                        <div class="step__number">2</div>
+                        <h3 class="step__title">查看报告</h3>
+                        <p class="step__description">获取您的 Top5 优势和详细分析报告</p>
+                    </div>
+                    <div class="step__connector"></div>
+                    <div class="step" data-animate="fade-up" data-animate-delay="300">
+                        <div class="step__number">3</div>
+                        <h3 class="step__title">AI 对话</h3>
+                        <p class="step__description">与 AI 教练深入探讨您的优势发展</p>
+                    </div>
+                    <div class="step__connector"></div>
+                    <div class="step" data-animate="fade-up" data-animate-delay="400">
+                        <div class="step__number">4</div>
+                        <h3 class="step__title">持续成长</h3>
+                        <p class="step__description">制定计划，追踪进步，实现突破</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 用户评价 -->
+        <section class="testimonials-section">
+            <div class="container">
+                <div class="feature-section__header" data-animate="fade-up">
+                    <h2 class="feature-section__title">用户真实反馈</h2>
+                    <p class="feature-section__description">
+                        听听他们怎么说
+                    </p>
+                </div>
+
+                <div class="grid-layout grid-layout--3">
+                    <div class="testimonial-card" data-animate="fade-up" data-animate-delay="100">
+                        <div class="testimonial-card__stars">
+                            ★★★★★
+                        </div>
+                        <p class="testimonial-card__content">
+                            "测评结果非常准确！通过了解自己的优势，我在工作中更加自信，也找到了更适合自己的发展方向。"
+                        </p>
+                        <div class="testimonial-card__author">
+                            <div class="testimonial-card__avatar">李</div>
+                            <div class="testimonial-card__info">
+                                <span class="testimonial-card__name">李明</span>
+                                <span class="testimonial-card__title">产品经理</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card" data-animate="fade-up" data-animate-delay="200">
+                        <div class="testimonial-card__stars">
+                            ★★★★★
+                        </div>
+                        <p class="testimonial-card__content">
+                            "AI 教练的建议非常实用，帮我理清了职业规划的思路。每天和 AI 对话已经成为我的习惯。"
+                        </p>
+                        <div class="testimonial-card__author">
+                            <div class="testimonial-card__avatar">王</div>
+                            <div class="testimonial-card__info">
+                                <span class="testimonial-card__name">王芳</span>
+                                <span class="testimonial-card__title">HR 总监</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card" data-animate="fade-up" data-animate-delay="300">
+                        <div class="testimonial-card__stars">
+                            ★★★★★
+                        </div>
+                        <p class="testimonial-card__content">
+                            "作为团队管理者，这个工具帮助我更好地了解团队成员的优势，优化了团队分工和协作。"
+                        </p>
+                        <div class="testimonial-card__author">
+                            <div class="testimonial-card__avatar">张</div>
+                            <div class="testimonial-card__info">
+                                <span class="testimonial-card__name">张伟</span>
+                                <span class="testimonial-card__title">技术总监</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA 区域 -->
+        <section class="cta-section">
+            <div class="container">
+                <h2 class="cta-section__title" data-animate="fade-up">准备好发现您的优势了吗？</h2>
+                <p class="cta-section__description" data-animate="fade-up" data-animate-delay="100">
+                    立即开始免费测评，开启您的个人成长之旅
+                </p>
+                <a href="/assessment/index.html" class="cta-section__btn" data-animate="fade-up" data-animate-delay="200">
+                    立即开始
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__grid">
+                <div class="footer__brand">
+                    <a href="/" class="footer__logo">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <circle cx="16" cy="16" r="14" fill="url(#footer-logo-gradient)"/>
+                            <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="footer-logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                                    <stop offset="0%" stop-color="#36b3fa"/>
+                                    <stop offset="100%" stop-color="#027fcf"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span>深觅</span>
+                    </a>
+                    <p class="footer__description">
+                        基于 AI 技术的个人成长教练平台，帮助您发现优势、实现自我成长。
+                    </p>
+                </div>
+
+                <div class="footer__links">
+                    <h4 class="footer__title">产品</h4>
+                    <ul>
+                        <li><a href="/assessment/index.html">优势测评</a></li>
+                        <li><a href="/chat/index.html">AI 教练</a></li>
+                        <li><a href="#">成长计划</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__links">
+                    <h4 class="footer__title">支持</h4>
+                    <ul>
+                        <li><a href="#">帮助中心</a></li>
+                        <li><a href="#">联系我们</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__links">
+                    <h4 class="footer__title">关于</h4>
+                    <ul>
+                        <li><a href="#">关于我们</a></li>
+                        <li><a href="#">加入我们</a></li>
+                        <li><a href="#">合作伙伴</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <p class="footer__copyright">
+                    © 2024 深觅 AI Coach. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- 首页特定样式 -->
+    <style>
+        /* Hero 区域统计 */
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-8);
+            margin-top: var(--space-10);
+            padding-top: var(--space-8);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .hero-stats__item {
+            text-align: center;
+        }
+
+        .hero-stats__number {
+            display: block;
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+
+        .hero-stats__label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 640px) {
+            .hero-stats {
+                gap: var(--space-6);
+            }
+            
+            .hero-stats__number {
+                font-size: var(--font-size-xl);
+            }
+        }
+
+        /* 测评 CTA 区域 */
+        .assessment-cta-section {
+            padding: var(--space-12) var(--space-4);
+            background: var(--bg-primary);
+        }
+
+        .assessment-cta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-10);
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .assessment-cta__title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+        }
+
+        .assessment-cta__description {
+            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            line-height: var(--line-height-relaxed);
+            margin-bottom: var(--space-6);
+        }
+
+        .assessment-cta__features {
+            list-style: none;
+            margin-bottom: var(--space-8);
+        }
+
+        .assessment-cta__features li {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+            color: var(--text-secondary);
+        }
+
+        .assessment-cta__features svg {
+            color: var(--color-success);
+            flex-shrink: 0;
+        }
+
+        /* 优势预览 */
+        .strength-preview {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .strength-preview__item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .strength-preview__item:last-child {
+            margin-bottom: 0;
+        }
+
+        .strength-preview__name {
+            width: 80px;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .strength-preview__bar {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .strength-preview__fill {
+            height: 100%;
+            width: var(--strength-score);
+            background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+            border-radius: var(--radius-full);
+            transition: width 1s ease-out;
+        }
+
+        .strength-preview__score {
+            width: 32px;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .assessment-cta {
+                grid-template-columns: 1fr;
+            }
+            
+            .assessment-cta__visual {
+                order: -1;
+            }
+        }
+
+        /* 步骤 */
+        .steps {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+        }
+
+        .step {
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .step__number {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            color: var(--white);
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-4);
+        }
+
+        .step__title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .step__description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .step__connector {
+            width: 40px;
+            height: 2px;
+            background: var(--border-medium);
+            margin-top: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .steps {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .step__connector {
+                width: 2px;
+                height: 24px;
+                margin-top: 0;
+            }
+        }
+
+        /* 用户评价卡片 */
+        .testimonials-section {
+            padding: var(--space-12) var(--space-4);
+            background: var(--bg-primary);
+        }
+
+        .testimonial-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .testimonial-card__stars {
+            color: var(--color-accent);
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--space-4);
+        }
+
+        .testimonial-card__content {
+            font-size: var(--font-size-base);
+            color: var(--text-primary);
+            line-height: var(--line-height-relaxed);
+            margin-bottom: var(--space-6);
+        }
+
+        .testimonial-card__author {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .testimonial-card__avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .testimonial-card__info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .testimonial-card__name {
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+        }
+
+        .testimonial-card__title {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* 页脚 */
+        .footer {
+            background: var(--gray-900);
+            color: var(--gray-300);
+            padding: var(--space-12) var(--space-4) var(--space-6);
+        }
+
+        .footer__grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: var(--space-8);
+            margin-bottom: var(--space-10);
+        }
+
+        .footer__logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            color: var(--white);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-4);
+        }
+
+        .footer__description {
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-relaxed);
+            max-width: 280px;
+        }
+
+        .footer__title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--white);
+            margin-bottom: var(--space-4);
+        }
+
+        .footer__links ul {
+            list-style: none;
+        }
+
+        .footer__links li {
+            margin-bottom: var(--space-2);
+        }
+
+        .footer__links a {
+            font-size: var(--font-size-sm);
+            color: var(--gray-400);
+            transition: color var(--duration-fast);
+        }
+
+        .footer__links a:hover {
+            color: var(--white);
+        }
+
+        .footer__bottom {
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--gray-800);
+            text-align: center;
+        }
+
+        .footer__copyright {
+            font-size: var(--font-size-sm);
+            color: var(--gray-500);
+        }
+
+        @media (max-width: 768px) {
+            .footer__grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer__grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 动画 */
+        [data-animate] {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .animate--fade-up {
+            animation: fadeUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 移动端菜单 */
+        .mobile-menu {
+            position: fixed;
+            inset: 0;
+            z-index: var(--z-modal);
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility var(--duration-normal), opacity var(--duration-normal);
+        }
+
+        .mobile-menu--open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .mobile-menu__overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-overlay);
+        }
+
+        .mobile-menu__panel {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: var(--bg-secondary);
+            transform: translateX(100%);
+            transition: transform var(--duration-normal) var(--ease-out);
+        }
+
+        .mobile-menu--open .mobile-menu__panel {
+            transform: translateX(0);
+        }
+
+        .mobile-menu__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .mobile-menu__title {
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+
+        .mobile-menu__close {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+        }
+
+        .mobile-menu__close:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .mobile-menu__nav {
+            padding: var(--space-4);
+        }
+
+        .mobile-menu__link {
+            display: block;
+            padding: var(--space-3) var(--space-4);
+            color: var(--text-primary);
+            font-weight: var(--font-weight-medium);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-2);
+        }
+
+        .mobile-menu__link:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .mobile-menu__link--primary {
+            background: var(--color-primary);
+            color: var(--white);
+            text-align: center;
+        }
+
+        .mobile-menu__link--primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .mobile-menu__divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: var(--space-4) 0;
+        }
+
+        /* 下拉菜单 */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown__menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: var(--space-2);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-light);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all var(--duration-fast);
+            z-index: var(--z-dropdown);
+        }
+
+        .dropdown--open .dropdown__menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown__item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+            width: 100%;
+        }
+
+        .dropdown__item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .dropdown__item--danger {
+            color: var(--color-error);
+        }
+
+        .dropdown__divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: var(--space-2) 0;
+        }
+
+        .header__user-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            border-radius: var(--radius-lg);
+        }
+
+        .header__user-btn:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .header__user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+        }
+
+        .header__user-name {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+        }
+    </style>
+</body>
+</html>

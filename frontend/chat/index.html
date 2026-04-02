@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="与 AI 教练对话，探索您的优势">
+    <title>AI 对话 - 深觅 AI Coach</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="../styles/variables.css">
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/layout.css">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body class="chat-page page--with-bottom-nav">
+    <!-- 侧边栏（桌面端） -->
+    <aside class="chat-sidebar">
+        <div class="chat-sidebar__header">
+            <a href="/" class="chat-sidebar__logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" fill="url(#logo-gradient)"/>
+                    <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#36b3fa"/>
+                            <stop offset="100%" stop-color="#027fcf"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>深觅</span>
+            </a>
+            <button class="chat-sidebar__new" onclick="createNewConversation()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                新对话
+            </button>
+        </div>
+        
+        <div class="chat-sidebar__list" id="conversationList">
+            <!-- 搜索框 (V2新增) -->
+            <div class="conversation-search" style="padding: var(--space-2); margin-bottom: var(--space-2);">
+                <input type="text" 
+                       class="conversation-search__input" 
+                       id="conversationSearch"
+                       placeholder="搜索对话..."
+                       oninput="searchConversations(this.value)">
+            </div>
+            <!-- 动态加载对话列表 -->
+            <div class="loading-conversations">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+
+        <div class="chat-sidebar__footer">
+            <a href="/star/index.html" class="chat-sidebar__link" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--color-text-secondary); text-decoration: none; border-radius: 8px; margin-bottom: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                我的星图
+            </a>
+            <a href="/user/index.html" class="chat-sidebar__user">
+                <div class="user-avatar">我</div>
+                <span>个人中心</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- 主聊天区域 -->
+    <main class="chat-main">
+        <!-- 移动端头部 -->
+        <header class="chat-header md:hidden">
+            <button class="chat-header__menu" onclick="toggleSidebar()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+            <span class="chat-header__title">深觅</span>
+            <button class="chat-header__new" onclick="createNewConversation()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- 消息区域 -->
+        <div class="chat-messages" id="messagesContainer">
+            <!-- RAI 实时意图识别状态 (V2新增) -->
+            <div id="raiStatusContainer" class="rai-status-container" style="display: none;"></div>
+
+            <!-- 快捷操作栏 (V2新增) -->
+            <div id="quickActionsContainer" class="quick-actions-container" style="display: none;"></div>
+
+            <!-- 欢迎消息 -->
+            <div class="chat-welcome">
+                <div class="chat-welcome__logo">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <h2 class="chat-welcome__title">我是您的 AI 优势教练</h2>
+                <p class="chat-welcome__subtitle">
+                    基于您的 VIA 测评结果，我可以帮助您深入了解自己的优势，制定个性化的成长计划。
+                </p>
+                <div class="chat-welcome__suggestions">
+                    <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                        解读我的测评结果
+                    </button>
+                    <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                        如何发挥我的 Top5 优势
+                    </button>
+                    <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                        制定个人成长计划
+                    </button>
+                    <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                        克服职业发展瓶颈
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+                <textarea 
+                    class="chat-input" 
+                    id="messageInput" 
+                    placeholder="输入您的问题..."
+                    rows="1"
+                ></textarea>
+                <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="chat-input-hint">AI 生成的内容仅供参考</p>
+        </div>
+    </main>
+
+    <!-- 移动端侧边栏遮罩 -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- 移动端底部导航 (design0311规范) -->
+    <nav class="bottom-nav md:hidden">
+        <a href="/chat/index.html" class="bottom-nav__item bottom-nav__item--active">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="bottom-nav__label">深潜</span>
+        </a>
+        <a href="/star/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span class="bottom-nav__label">观己</span>
+        </a>
+        <a href="/explore/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+            </svg>
+            <span class="bottom-nav__label">追觅</span>
+        </a>
+        <a href="/user/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="bottom-nav__label">我的</span>
+        </a>
+    </nav>
+
+    <!-- JavaScript -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/chat.js"></script>
+
+    <script>
+        // 检查登录状态
+        if (!localStorage.getItem('access_token')) {
+            sessionStorage.setItem('redirect_after_login', window.location.href);
+            window.location.href = '/login.html';
+        }
+
+        // 页面加载完成后加载对话列表
+        document.addEventListener('DOMContentLoaded', async () => {
+            loadConversationList();
+            initInput();
+            initChatManager();
+            
+            // 检查是否有来自星图的探索建议，如有则自动发送
+            const handled = await handlePendingExplorePrompt();
+            if (handled) {
+                // 刷新对话列表以显示新对话
+                loadConversationList();
+            }
+        });
+
+        // 初始化 ChatManager 监听器 (V2新增)
+        function initChatManager() {
+            chatManager.addListener((event, data) => {
+                const container = document.getElementById('messagesContainer');
+                switch(event) {
+                    case 'raiProcessing':
+                        renderRAIStatus(data.stage, data.text);
+                        break;
+                    case 'loadingEnd':
+                        hideRAIStatus();
+                        break;
+                    case 'messageAdded':
+                        // 渲染新消息到UI
+                        if (container) {
+                            // 隐藏欢迎消息
+                            const welcome = document.querySelector('.chat-welcome');
+                            if (welcome) welcome.style.display = 'none';
+                            renderMessage(data, container);
+                        }
+                        break;
+                    case 'intentDetected':
+                        // 意图检测后的UI更新
+                        console.log('意图:', data.intent, '角色:', data.role);
+                        break;
+                }
+            });
+        }
+
+        // 初始化输入框
+        function initInput() {
+            const input = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+
+            // 自动调整高度
+            input.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // 回车发送
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+
+            if (!content) return;
+
+            // 清空输入框
+            input.value = '';
+            input.style.height = 'auto';
+
+            // 隐藏欢迎消息
+            const welcome = document.querySelector('.chat-welcome');
+            if (welcome) welcome.style.display = 'none';
+
+            const container = document.getElementById('messagesContainer');
+
+            // 渲染用户消息
+            renderMessage({
+                role: 'user',
+                content: content,
+                created_at: new Date().toISOString()
+            }, container);
+
+            // 显示加载中
+            const loadingEl = renderLoadingMessage(container);
+
+            // 发送消息
+            const result = await chatManager.sendMessage(content);
+
+            // 移除加载中
+            loadingEl.remove();
+
+            if (result.success) {
+                renderMessage(result.data, container);
+            } else {
+                showToast(result.error, 'error');
+            }
+        }
+
+        // 发送建议
+        function sendSuggestion(btn) {
+            const input = document.getElementById('messageInput');
+            input.value = btn.textContent;
+            sendMessage();
+        }
+
+        // 创建新对话
+        async function createNewConversation() {
+            console.log('创建新对话...');
+            try {
+                const result = await chatManager.createConversation('新对话');
+                console.log('创建结果:', result);
+                
+                if (result.success) {
+                    // 清空消息区域，显示欢迎消息
+                    const container = document.getElementById('messagesContainer');
+                    container.innerHTML = `
+                        <div class="chat-welcome">
+                            <div class="chat-welcome__logo">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                            </div>
+                            <h2 class="chat-welcome__title">我是您的 AI 优势教练</h2>
+                            <p class="chat-welcome__subtitle">
+                                基于您的 VIA 测评结果，我可以帮助您深入了解自己的优势，制定个性化的成长计划。
+                            </p>
+                            <div class="chat-welcome__suggestions">
+                                <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                                    解读我的测评结果
+                                </button>
+                                <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                                    如何发挥我的 Top5 优势
+                                </button>
+                                <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                                    制定个人成长计划
+                                </button>
+                                <button class="suggestion-chip" onclick="sendSuggestion(this)">
+                                    克服职业发展瓶颈
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 刷新列表
+                    await loadConversationList();
+                    
+                    // 移动端关闭侧边栏
+                    document.body.classList.remove('sidebar-open');
+                    
+                    showToast('新对话已创建', 'success');
+                } else {
+                    console.error('创建对话失败:', result.error);
+                    showToast(result.error || '创建对话失败，请重试', 'error');
+                }
+            } catch (error) {
+                console.error('创建对话异常:', error);
+                showToast('创建对话失败: ' + (error.message || '未知错误'), 'error');
+            }
+        }
+
+        // 切换侧边栏（移动端）
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-open');
+        }
+
+        // 搜索对话 (V2新增)
+        function searchConversations(query) {
+            const items = document.querySelectorAll('.conversation-item');
+            const groups = document.querySelectorAll('.conversation-group');
+            
+            query = query.toLowerCase().trim();
+            
+            items.forEach(item => {
+                const title = item.querySelector('.conversation-item__title')?.textContent?.toLowerCase() || '';
+                if (query === '' || title.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // 隐藏空的分组
+            groups.forEach(group => {
+                const visibleItems = group.querySelectorAll('.conversation-item[style*="flex"], .conversation-item:not([style*="none"])');
+                group.style.display = visibleItems.length > 0 ? 'block' : 'none';
+            });
+        }
+
+        // Toast 提示 (V2新增)
+        function showToast(message, type = 'info') {
+            const container = document.querySelector('.toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+    </script>
+
+    <style>
+        /* 聊天页面 */
+        .chat-page {
+            display: flex;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            background: var(--bg-primary);
+        }
+
+        /* 侧边栏 */
+        .chat-sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .chat-sidebar__header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .chat-sidebar__logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+        }
+
+        .chat-sidebar__new {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: var(--font-weight-medium);
+            transition: all var(--duration-fast);
+        }
+
+        .chat-sidebar__new:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--border-strong);
+        }
+
+        .chat-sidebar__list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-2);
+        }
+
+        .chat-sidebar__footer {
+            padding: var(--space-4);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .chat-sidebar__user {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            color: var(--text-primary);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+        }
+
+        /* 对话列表项 */
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            margin-bottom: var(--space-1);
+        }
+
+        .conversation-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .conversation-item--active {
+            background: var(--color-primary-light);
+        }
+
+        .conversation-item__icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .conversation-item--active .conversation-item__icon {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .conversation-item__content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conversation-item__title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-item__meta {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+
+        .conversation-item__delete {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            opacity: 0;
+            transition: all var(--duration-fast);
+        }
+
+        .conversation-item:hover .conversation-item__delete {
+            opacity: 1;
+        }
+
+        .conversation-item__delete:hover {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        /* 主聊天区域 */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* 移动端头部 */
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .chat-header__menu,
+        .chat-header__new {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+        }
+
+        .chat-header__title {
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+
+        /* 消息区域 */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+        }
+
+        /* 欢迎消息 */
+        .chat-welcome {
+            text-align: center;
+            padding: var(--space-8) var(--space-4);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .chat-welcome__logo {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-4);
+            color: white;
+        }
+
+        .chat-welcome__title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .chat-welcome__subtitle {
+            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .chat-welcome__suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .suggestion-chip {
+            padding: var(--space-2) var(--space-4);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .suggestion-chip:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        /* 消息气泡 */
+        .message {
+            display: flex;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+            max-width: 80%;
+        }
+
+        .message--user {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+
+        .message__avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            flex-shrink: 0;
+        }
+
+        .message--ai .message__avatar {
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            color: white;
+        }
+
+        .message--user .message__avatar {
+            background: linear-gradient(135deg, var(--secondary-500), var(--secondary-600));
+            color: white;
+        }
+
+        .message__content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message__bubble {
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-xl);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-relaxed);
+            word-break: break-word;
+        }
+
+        .message--ai .message__bubble {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-top-left-radius: var(--radius-sm);
+            color: var(--text-primary);
+        }
+
+        .message--user .message__bubble {
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            color: white;
+            border-top-right-radius: var(--radius-sm);
+        }
+
+        .message__time {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-1);
+        }
+
+        .message--user .message__time {
+            text-align: right;
+        }
+
+        /* 加载中消息 */
+        .message--loading .message__bubble {
+            padding: var(--space-4) var(--space-6);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--text-muted);
+            border-radius: var(--radius-full);
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* 输入区域 */
+        .chat-input-area {
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-light);
+            padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: var(--space-2);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2) var(--space-3);
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 44px;
+            max-height: 120px;
+            padding: var(--space-2);
+            background: transparent;
+            border: none;
+            resize: none;
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-normal);
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .chat-input:focus {
+            outline: none;
+        }
+
+        .chat-send-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-lg);
+            background: var(--color-primary);
+            color: white;
+            flex-shrink: 0;
+            transition: all var(--duration-fast);
+        }
+
+        .chat-send-btn:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .chat-input-hint {
+            text-align: center;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-2);
+        }
+
+        /* 移动端侧边栏 */
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: var(--z-fixed);
+                transform: translateX(-100%);
+                transition: transform var(--duration-normal) var(--ease-out);
+            }
+
+            .sidebar-open .chat-sidebar {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: var(--bg-overlay);
+                z-index: var(--z-modal-backdrop);
+                opacity: 0;
+                visibility: hidden;
+                transition: all var(--duration-normal);
+            }
+
+            .sidebar-open .sidebar-overlay {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        /* 加载动画 */
+        .loading-conversations {
+            display: flex;
+            justify-content: center;
+            padding: var(--space-8);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--color-primary);
+            border-radius: var(--radius-full);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 空状态 */
+        .empty-conversations {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        /* ==================== V2 新增组件 ==================== */
+
+        /* RAI 实时意图识别状态 */
+        .rai-status-container {
+            display: flex;
+            justify-content: center;
+            padding: var(--space-2) var(--space-4);
+            margin-bottom: var(--space-2);
+        }
+
+        .rai-status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-2) var(--space-4);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            animation: rai-fade-in 0.3s ease-out;
+        }
+
+        @keyframes rai-fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rai-status__dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .rai-status__dots span {
+            width: 6px;
+            height: 6px;
+            background: var(--border-medium);
+            border-radius: var(--radius-full);
+            transition: all 0.3s ease;
+        }
+
+        .rai-status__dots span.active {
+            background: var(--color-primary);
+            animation: rai-dot-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes rai-dot-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        /* 意图 Badge */
+        .intent-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-3);
+            background: color-mix(in srgb, var(--intent-color, var(--color-primary)) 10%, white);
+            border: 1px solid color-mix(in srgb, var(--intent-color, var(--color-primary)) 30%, white);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            color: var(--intent-color, var(--color-primary));
+            margin-bottom: var(--space-1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .intent-badge:hover {
+            background: color-mix(in srgb, var(--intent-color, var(--color-primary)) 20%, white);
+        }
+
+        .intent-badge__dot {
+            width: 6px;
+            height: 6px;
+            border-radius: var(--radius-full);
+        }
+
+        .intent-badge__confidence {
+            margin-left: var(--space-1);
+            opacity: 0.7;
+        }
+
+        .intent-detail {
+            padding: var(--space-2) var(--space-3);
+            margin-bottom: var(--space-2);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .intent-detail__item {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        /* 快捷操作栏 */
+        .quick-actions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            margin-bottom: var(--space-2);
+        }
+
+        .quick-action-chip,
+        .message-action-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-2) var(--space-3);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-action-chip:hover,
+        .message-action-chip:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
+        .quick-action-chip__icon {
+            font-size: var(--font-size-base);
+        }
+
+        .message__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+        }
+
+        /* 角色样式变体 */
+        .message--role-companion .message__avatar {
+            background: linear-gradient(135deg, #FF6B9D, #FF8C94);
+        }
+
+        .message--role-coach .message__avatar {
+            background: linear-gradient(135deg, #4A90D9, #027fcf);
+        }
+
+        .message--role-mentor .message__avatar {
+            background: linear-gradient(135deg, #50C878, #22A559);
+        }
+
+        .message--role-explorer .message__avatar {
+            background: linear-gradient(135deg, #9B59B6, #8E44AD);
+        }
+
+        .message--role-partner .message__avatar {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+        }
+
+        /* 对话分组标签 */
+        .conversation-group {
+            margin-bottom: var(--space-3);
+        }
+
+        .conversation-group__label {
+            padding: var(--space-2) var(--space-3);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 对话搜索框 */
+        .conversation-search__input {
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+        }
+
+        .conversation-search__input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .conversation-search__input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+    </style>
+</body>
+</html>

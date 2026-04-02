@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="VIA 性格优势测评结果 - 深觅 AI Coach">
+    <title>测评结果 - 深觅 AI Coach</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="../styles/variables.css">
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/layout.css">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body class="page--with-header">
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="container header__inner">
+            <a href="/" class="header__logo">
+                <svg class="header__logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" fill="url(#logo-gradient)"/>
+                    <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#36b3fa"/>
+                            <stop offset="100%" stop-color="#027fcf"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="header__logo-text">深觅</span>
+            </a>
+
+            <nav class="header__nav hidden-sm">
+                <a href="/" class="header__nav-link">首页</a>
+                <a href="/assessment/index.html" class="header__nav-link header__nav-link--active">测评中心</a>
+                <a href="/chat/index.html" class="header__nav-link">AI 对话</a>
+            </nav>
+
+            <div class="header__user-actions">
+                <a href="/login.html" class="btn btn--ghost btn--md">登录</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="page__content">
+        <div class="result-page">
+            <!-- 结果头部 -->
+            <div class="result-hero">
+                <div class="container">
+                    <div class="result-hero__content">
+                        <div class="result-badge">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <h1 class="result-hero__title">测评完成！</h1>
+                        <p class="result-hero__subtitle">以下是您的 VIA 性格优势测评结果</p>
+                        <div class="result-date">完成时间：2024年1月20日</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果内容 -->
+            <div class="container result-content">
+                <!-- Top5 优势 -->
+                <section class="result-section">
+                    <h2 class="section-title">您的 Top5 优势</h2>
+                    <div class="top-strengths">
+                        <div class="strength-card strength-card--1" data-animate="fade-up">
+                            <div class="strength-card__rank">1</div>
+                            <div class="strength-card__content">
+                                <h3 class="strength-card__name">战略思维</h3>
+                                <p class="strength-card__description">善于从全局角度思考问题，能够制定长远计划并预见未来趋势。</p>
+                                <div class="strength-card__score">
+                                    <div class="score-bar">
+                                        <div class="score-bar__fill" style="width: 92%"></div>
+                                    </div>
+                                    <span class="score-value">92</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="strength-card strength-card--2" data-animate="fade-up" data-animate-delay="100">
+                            <div class="strength-card__rank">2</div>
+                            <div class="strength-card__content">
+                                <h3 class="strength-card__name">学习力</h3>
+                                <p class="strength-card__description">对新知识充满好奇，学习能力强，喜欢不断提升自己。</p>
+                                <div class="strength-card__score">
+                                    <div class="score-bar">
+                                        <div class="score-bar__fill" style="width: 88%"></div>
+                                    </div>
+                                    <span class="score-value">88</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="strength-card strength-card--3" data-animate="fade-up" data-animate-delay="200">
+                            <div class="strength-card__rank">3</div>
+                            <div class="strength-card__content">
+                                <h3 class="strength-card__name">创造力</h3>
+                                <p class="strength-card__description">思维活跃，善于产生新颖的想法和独特的解决方案。</p>
+                                <div class="strength-card__score">
+                                    <div class="score-bar">
+                                        <div class="score-bar__fill" style="width: 85%"></div>
+                                    </div>
+                                    <span class="score-value">85</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="strength-card strength-card--4" data-animate="fade-up" data-animate-delay="300">
+                            <div class="strength-card__rank">4</div>
+                            <div class="strength-card__content">
+                                <h3 class="strength-card__name">社交智慧</h3>
+                                <p class="strength-card__description">善于理解他人，能够建立良好的人际关系。</p>
+                                <div class="strength-card__score">
+                                    <div class="score-bar">
+                                        <div class="score-bar__fill" style="width: 82%"></div>
+                                    </div>
+                                    <span class="score-value">82</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="strength-card strength-card--5" data-animate="fade-up" data-animate-delay="400">
+                            <div class="strength-card__rank">5</div>
+                            <div class="strength-card__content">
+                                <h3 class="strength-card__name">毅力</h3>
+                                <p class="strength-card__description">面对困难不轻易放弃，能够坚持不懈地追求目标。</p>
+                                <div class="strength-card__score">
+                                    <div class="score-bar">
+                                        <div class="score-bar__fill" style="width: 78%"></div>
+                                    </div>
+                                    <span class="score-value">78</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 优势分布 -->
+                <section class="result-section">
+                    <h2 class="section-title">六大美德领域分布</h2>
+                    <div class="dimension-chart" data-animate="fade-up">
+                        <div class="dimension-item">
+                            <span class="dimension-name">智慧与知识</span>
+                            <div class="dimension-bar">
+                                <div class="dimension-bar__fill" style="width: 85%"></div>
+                            </div>
+                            <span class="dimension-score">85</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span class="dimension-name">勇气</span>
+                            <div class="dimension-bar">
+                                <div class="dimension-bar__fill" style="width: 78%"></div>
+                            </div>
+                            <span class="dimension-score">78</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span class="dimension-name">人道主义</span>
+                            <div class="dimension-bar">
+                                <div class="dimension-bar__fill" style="width: 72%"></div>
+                            </div>
+                            <span class="dimension-score">72</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span class="dimension-name">正义</span>
+                            <div class="dimension-bar">
+                                <div class="dimension-bar__fill" style="width: 68%"></div>
+                            </div>
+                            <span class="dimension-score">68</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span class="dimension-name">节制</span>
+                            <div class="dimension-bar">
+                                <div class="dimension-bar__fill" style="width: 65%"></div>
+                            </div>
+                            <span class="dimension-score">65</span>
+                        </div>
+                        <div class="dimension-item">
+                            <span class="dimension-name">超越</span>
+                            <div class="dimension-bar">
+                                <div class="dimension-bar__fill" style="width: 70%"></div>
+                            </div>
+                            <span class="dimension-score">70</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 发展建议 -->
+                <section class="result-section">
+                    <h2 class="section-title">个性化发展建议</h2>
+                    <div class="recommendations" data-animate="fade-up">
+                        <div class="recommendation-card">
+                            <div class="recommendation-card__icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 20h9"/>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                            </div>
+                            <div class="recommendation-card__content">
+                                <h3 class="recommendation-card__title">发挥战略思维优势</h3>
+                                <p class="recommendation-card__text">在项目中主动承担规划和决策角色，运用您的全局视野帮助团队制定长远目标。</p>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card">
+                            <div class="recommendation-card__icon" style="background: linear-gradient(135deg, var(--secondary-100), var(--secondary-200)); color: var(--color-secondary);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+                            </div>
+                            <div class="recommendation-card__content">
+                                <h3 class="recommendation-card__title">持续学习成长</h3>
+                                <p class="recommendation-card__text">利用您的学习力优势，每月学习一项新技能，保持竞争优势。</p>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-card">
+                            <div class="recommendation-card__icon" style="background: linear-gradient(135deg, var(--accent-100), var(--accent-200)); color: var(--color-accent);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div class="recommendation-card__content">
+                                <h3 class="recommendation-card__title">加强团队协作</h3>
+                                <p class="recommendation-card__text">运用您的社交智慧，在团队中发挥协调作用，促进成员间的沟通与合作。</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 行动按钮 -->
+                <section class="result-actions" data-animate="fade-up">
+                    <a href="/chat/index.html" class="btn btn--primary btn--lg">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        与 AI 教练深入探讨
+                    </a>
+                    <button class="btn btn--outline btn--lg" onclick="shareResult()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                        分享结果
+                    </button>
+                    <button class="btn btn--ghost btn--lg" onclick="downloadReport()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        下载报告
+                    </button>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer__copyright">© 2024 深觅 AI Coach. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/main.js"></script>
+
+    <script>
+        // 分享结果
+        async function shareResult() {
+            const shareData = {
+                title: '我的 VIA 优势测评结果 - 深觅 AI Coach',
+                text: '我刚刚完成了 VIA 性格优势测评，发现了自己的核心优势！',
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        copyToClipboard(window.location.href);
+                    }
+                }
+            } else {
+                copyToClipboard(window.location.href);
+            }
+        }
+
+        // 下载报告
+        function downloadReport() {
+            showToast('报告下载功能开发中', 'info');
+        }
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', () => {
+            // 触发动画
+            const animatedElements = document.querySelectorAll('[data-animate]');
+            animatedElements.forEach((el, index) => {
+                const delay = el.dataset.animateDelay || 0;
+                setTimeout(() => {
+                    el.classList.add('animate--visible');
+                }, delay);
+            });
+        });
+    </script>
+
+    <style>
+        /* 结果页面 */
+        .result-page {
+            background: var(--bg-primary);
+        }
+
+        /* 结果头部 */
+        .result-hero {
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+            padding: var(--space-12) var(--space-4);
+            text-align: center;
+            color: white;
+        }
+
+        .result-hero__content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .result-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-6);
+        }
+
+        .result-hero__title {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-3);
+        }
+
+        .result-hero__subtitle {
+            font-size: var(--font-size-lg);
+            opacity: 0.9;
+            margin-bottom: var(--space-2);
+        }
+
+        .result-date {
+            font-size: var(--font-size-sm);
+            opacity: 0.7;
+        }
+
+        /* 结果内容 */
+        .result-content {
+            padding: var(--space-8) var(--space-4);
+            max-width: 800px;
+        }
+
+        .result-section {
+            margin-bottom: var(--space-10);
+        }
+
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-6);
+        }
+
+        /* Top5 优势卡片 */
+        .top-strengths {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .strength-card {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--color-primary);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .strength-card.animate--visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .strength-card--1 { border-left-color: var(--primary-500); }
+        .strength-card--2 { border-left-color: var(--primary-400); }
+        .strength-card--3 { border-left-color: var(--primary-300); }
+        .strength-card--4 { border-left-color: var(--secondary-500); }
+        .strength-card--5 { border-left-color: var(--secondary-400); }
+
+        .strength-card__rank {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-weight-bold);
+            flex-shrink: 0;
+        }
+
+        .strength-card__content {
+            flex: 1;
+        }
+
+        .strength-card__name {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .strength-card__description {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-3);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .strength-card__score {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .score-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--border-light);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .score-bar__fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+            border-radius: var(--radius-full);
+            transition: width 1s ease;
+        }
+
+        .score-value {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+            min-width: 32px;
+            text-align: right;
+        }
+
+        /* 维度分布 */
+        .dimension-chart {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .dimension-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .dimension-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dimension-name {
+            width: 100px;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .dimension-bar {
+            flex: 1;
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .dimension-bar__fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+            border-radius: var(--radius-full);
+            transition: width 1s ease;
+        }
+
+        .dimension-score {
+            width: 36px;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-primary);
+            text-align: right;
+        }
+
+        /* 建议卡片 */
+        .recommendations {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .recommendation-card {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            box-shadow: var(--shadow-sm);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .recommendation-card.animate--visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .recommendation-card__icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .recommendation-card__content {
+            flex: 1;
+        }
+
+        .recommendation-card__title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .recommendation-card__text {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            line-height: var(--line-height-relaxed);
+        }
+
+        /* 行动按钮 */
+        .result-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+            justify-content: center;
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--border-light);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result-actions.animate--visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-actions .btn {
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: var(--gray-900);
+            color: var(--gray-400);
+            padding: var(--space-6);
+            text-align: center;
+        }
+
+        .footer__copyright {
+            font-size: var(--font-size-sm);
+        }
+
+        @media (max-width: 640px) {
+            .result-actions .btn {
+                width: 100%;
+                max-width: none;
+            }
+
+            .dimension-name {
+                width: 80px;
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</body>
+</html>

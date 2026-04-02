@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="注册深觅 AI Coach，开启您的个人成长之旅">
+    <title>注册 - 深觅 AI Coach</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/layout.css">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <!-- 左侧装饰区域（桌面端显示） -->
+        <div class="auth-decoration">
+            <div class="auth-decoration__content">
+                <svg class="auth-decoration__logo" width="64" height="64" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" fill="white" fill-opacity="0.2"/>
+                    <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h2 class="auth-decoration__title">开始您的旅程</h2>
+                <p class="auth-decoration__subtitle">发现优势，成就更好的自己</p>
+                
+                <div class="auth-decoration__features">
+                    <div class="auth-decoration__feature">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <span>免费 VIA 优势测评</span>
+                    </div>
+                    <div class="auth-decoration__feature">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>每日 3 次免费 AI 对话</span>
+                    </div>
+                    <div class="auth-decoration__feature">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="20" x2="12" y2="10"/>
+                            <line x1="18" y1="20" x2="18" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="16"/>
+                        </svg>
+                        <span>详细的个人优势报告</span>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-decoration__pattern"></div>
+        </div>
+
+        <!-- 右侧表单区域 -->
+        <div class="auth-form-section">
+            <div class="auth-form-container">
+                <!-- 返回首页 -->
+                <a href="/" class="auth-back-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    返回首页
+                </a>
+
+                <!-- Logo -->
+                <div class="auth-logo">
+                    <svg width="48" height="48" viewBox="0 0 32 32" fill="none">
+                        <circle cx="16" cy="16" r="14" fill="url(#auth-logo-gradient)"/>
+                        <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="auth-logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                                <stop offset="0%" stop-color="#36b3fa"/>
+                                <stop offset="100%" stop-color="#027fcf"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="auth-logo__text">深觅</span>
+                </div>
+
+                <h1 class="auth-title">创建账号</h1>
+                <p class="auth-subtitle">填写以下信息开始您的优势探索之旅</p>
+
+                <!-- 注册表单 -->
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label" for="nickname">昵称</label>
+                        <div class="input-group">
+                            <span class="input-group__prefix">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                            </span>
+                            <input 
+                                type="text" 
+                                id="nickname" 
+                                name="nickname" 
+                                class="form-control form-control--md input-group--with-prefix" 
+                                placeholder="请输入您的昵称"
+                                required
+                                autocomplete="nickname"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">邮箱地址</label>
+                        <div class="input-group">
+                            <span class="input-group__prefix">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                            </span>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                class="form-control form-control--md input-group--with-prefix" 
+                                placeholder="请输入邮箱地址"
+                                required
+                                autocomplete="email"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">密码</label>
+                        <div class="input-group">
+                            <span class="input-group__prefix">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            </span>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                class="form-control form-control--md input-group--with-prefix" 
+                                placeholder="请设置密码（6-20位）"
+                                required
+                                autocomplete="new-password"
+                                minlength="6"
+                                maxlength="20"
+                            >
+                            <button type="button" class="password-toggle" tabindex="-1">
+                                <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <svg class="eye-off-icon hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- 密码强度指示器 -->
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="password-strength__bar">
+                                <div class="password-strength__fill"></div>
+                            </div>
+                            <span class="password-strength__text">密码强度</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="confirmPassword">确认密码</label>
+                        <div class="input-group">
+                            <span class="input-group__prefix">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            </span>
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                class="form-control form-control--md input-group--with-prefix" 
+                                placeholder="请再次输入密码"
+                                required
+                                autocomplete="new-password"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="agreement" class="checkbox__input" required>
+                            <span class="checkbox__label">
+                                我已阅读并同意<a href="#" class="auth-link" onclick="showToast('功能开发中', 'info'); return false;">服务条款</a>和<a href="#" class="auth-link" onclick="showToast('功能开发中', 'info'); return false;">隐私政策</a>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--lg btn--block" id="registerBtn">
+                        创建账号
+                    </button>
+                </form>
+
+                <!-- 分隔线 -->
+                <div class="auth-divider">
+                    <span>或使用以下方式注册</span>
+                </div>
+
+                <!-- 第三方注册 -->
+                <div class="auth-social">
+                    <button type="button" class="auth-social__btn" onclick="showToast('功能开发中', 'info');">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#07C160" d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/>
+                        </svg>
+                        微信注册
+                    </button>
+                </div>
+
+                <!-- 登录链接 -->
+                <p class="auth-footer">
+                    已有账号？<a href="/login.html" class="auth-link">立即登录</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+
+    <script>
+        // 密码可见性切换
+        document.querySelector('.password-toggle').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = this.querySelector('.eye-icon');
+            const eyeOffIcon = this.querySelector('.eye-off-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.add('hidden');
+                eyeOffIcon.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('hidden');
+                eyeOffIcon.classList.add('hidden');
+            }
+        });
+
+        // 密码强度检测
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthEl = document.getElementById('passwordStrength');
+            const fillEl = strengthEl.querySelector('.password-strength__fill');
+            const textEl = strengthEl.querySelector('.password-strength__text');
+            
+            const result = validatePassword(password);
+            
+            // 更新强度条
+            const strengthPercent = (result.strength / 5) * 100;
+            fillEl.style.width = strengthPercent + '%';
+            
+            // 更新颜色和文字
+            if (result.strength <= 1) {
+                fillEl.style.background = 'var(--color-error)';
+                textEl.textContent = result.message;
+                textEl.style.color = 'var(--color-error)';
+            } else if (result.strength <= 3) {
+                fillEl.style.background = 'var(--color-warning)';
+                textEl.textContent = result.message;
+                textEl.style.color = 'var(--color-warning)';
+            } else {
+                fillEl.style.background = 'var(--color-success)';
+                textEl.textContent = result.message;
+                textEl.style.color = 'var(--color-success)';
+            }
+        });
+
+        // 表单验证和注册
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const nickname = document.getElementById('nickname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const agreement = document.querySelector('input[name="agreement"]').checked;
+            const registerBtn = document.getElementById('registerBtn');
+            
+            // 验证
+            if (!nickname || !email || !password) {
+                showToast('请填写完整的注册信息', 'warning');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showToast('请输入有效的邮箱地址', 'warning');
+                return;
+            }
+            
+            const passwordCheck = validatePassword(password);
+            if (!passwordCheck.valid) {
+                showToast(passwordCheck.message, 'warning');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showToast('两次输入的密码不一致', 'warning');
+                return;
+            }
+            
+            if (!agreement) {
+                showToast('请阅读并同意服务条款和隐私政策', 'warning');
+                return;
+            }
+            
+            // 设置加载状态
+            setLoading(registerBtn, true);
+            registerBtn.textContent = '注册中...';
+            
+            // 调用注册
+            const result = await auth.register(email, password, nickname);
+            
+            // 恢复按钮状态
+            setLoading(registerBtn, false);
+            registerBtn.textContent = '创建账号';
+            
+            if (result.success) {
+                showToast('注册成功！', 'success');
+                
+                // 延迟跳转到用户中心
+                setTimeout(() => {
+                    window.location.href = '/user/index.html';
+                }, 1500);
+            } else {
+                showToast(result.error, 'error');
+            }
+        });
+
+        // 如果已登录，跳转到用户中心
+        if (localStorage.getItem('access_token')) {
+            window.location.href = '/user/index.html';
+        }
+    </script>
+
+    <style>
+        /* 复用登录页的样式 */
+        .auth-page {
+            min-height: 100vh;
+            background: var(--bg-primary);
+        }
+
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .auth-decoration {
+            display: none;
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-decoration__content {
+            position: relative;
+            z-index: 1;
+            padding: var(--space-12);
+            color: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .auth-decoration__logo {
+            margin-bottom: var(--space-6);
+        }
+
+        .auth-decoration__title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--space-3);
+        }
+
+        .auth-decoration__subtitle {
+            font-size: var(--font-size-xl);
+            opacity: 0.9;
+            margin-bottom: var(--space-10);
+        }
+
+        .auth-decoration__features {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .auth-decoration__feature {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: var(--font-size-base);
+            opacity: 0.9;
+        }
+
+        .auth-decoration__pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        @media (min-width: 1024px) {
+            .auth-decoration {
+                display: flex;
+            }
+        }
+
+        .auth-form-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-6);
+        }
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-6);
+            transition: color var(--duration-fast);
+        }
+
+        .auth-back-link:hover {
+            color: var(--color-primary);
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+        }
+
+        .auth-logo__text {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+        }
+
+        .auth-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: var(--space-2);
+        }
+
+        .auth-subtitle {
+            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-link {
+            color: var(--color-primary);
+            font-size: var(--font-size-sm);
+        }
+
+        .auth-link:hover {
+            color: var(--color-primary-hover);
+            text-decoration: underline;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: var(--space-6) 0;
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        .auth-divider span {
+            padding: 0 var(--space-4);
+        }
+
+        .auth-social {
+            display: flex;
+            justify-content: center;
+        }
+
+        .auth-social__btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            transition: all var(--duration-fast);
+        }
+
+        .auth-social__btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--border-strong);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: var(--space-8);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            padding: var(--space-1);
+            transition: color var(--duration-fast);
+        }
+
+        .password-toggle:hover {
+            color: var(--text-secondary);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group__prefix {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .input-group--with-prefix {
+            padding-left: var(--space-10) !important;
+        }
+
+        /* 密码强度指示器 */
+        .password-strength {
+            margin-top: var(--space-2);
+        }
+
+        .password-strength__bar {
+            height: 4px;
+            background: var(--border-light);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: var(--space-1);
+        }
+
+        .password-strength__fill {
+            height: 100%;
+            width: 0;
+            background: var(--color-error);
+            border-radius: var(--radius-full);
+            transition: all var(--duration-fast);
+        }
+
+        .password-strength__text {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+    </style>
+</body>
+</html>

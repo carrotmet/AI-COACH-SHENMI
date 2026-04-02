@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="深觅 AI Coach 个人星图 - 可视化的性格优势图谱">
+    <title>我的星图 - 深觅 AI Coach</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="../styles/variables.css">
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/layout.css">
+    
+    <!-- AntV G6 图可视化库 -->
+    <script src="https://unpkg.com/@antv/g6@4.8.0/dist/g6.min.js"></script>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+    
+    <style>
+        /* 星图页面专用样式 */
+        .star-page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .star-container {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 星图画布区域 */
+        .star-canvas-wrapper {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+        }
+        
+        #star-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 加载状态 */
+        .star-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .star-loading__spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--color-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 画布控制栏 */
+        .star-controls {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+        
+        .star-control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .star-control-btn:hover {
+            background: var(--color-primary-light);
+            border-color: var(--color-primary);
+        }
+        
+        .star-control-btn svg {
+            width: 20px;
+            height: 20px;
+            color: var(--color-text);
+        }
+        
+        /* 图例 */
+        .star-legend {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            z-index: 100;
+            min-width: 180px;
+        }
+        
+        .star-legend__title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 12px;
+        }
+        
+        .star-legend__item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        
+        .star-legend__dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* 详情面板 */
+        .star-detail-panel {
+            width: 380px;
+            background: white;
+            border-left: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 200;
+        }
+        
+        .star-detail-panel--collapsed {
+            transform: translateX(100%);
+        }
+        
+        @media (max-width: 768px) {
+            .star-detail-panel {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 85%;
+                max-width: 360px;
+                box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            }
+        }
+        
+        .star-detail__header {
+            padding: 20px;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .star-detail__title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+        
+        .star-detail__close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .star-detail__close:hover {
+            background: var(--color-bg-secondary);
+        }
+        
+        .star-detail__content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .star-detail__empty {
+            text-align: center;
+            color: var(--color-text-secondary);
+            padding: 40px 20px;
+        }
+        
+        /* 节点信息卡片 */
+        .node-info-card {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .node-info-card__header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .node-info-card__icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .node-info-card__title {
+            flex: 1;
+        }
+        
+        .node-info-card__name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+        
+        .node-info-card__type {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+        
+        .node-info-card__score {
+            text-align: right;
+        }
+        
+        .node-info-card__score-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        
+        .node-info-card__score-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+        
+        .node-info-card__description {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* AI建议区域 */
+        .ai-suggestions {
+            margin-top: 24px;
+        }
+        
+        .ai-suggestions__title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .ai-suggestions__title::before {
+            content: "💡";
+        }
+        
+        .ai-suggestion-item {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f9ff 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--color-text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .ai-suggestion-item:hover {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+            border-color: #7dd3fc;
+            transform: translateX(4px);
+        }
+        
+        /* 顶部信息栏 */
+        .star-info-bar {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            z-index: 100;
+            max-width: 300px;
+        }
+        
+        .star-info-bar__title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+        
+        .star-info-bar__desc {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        
+        /* 空状态 */
+        .star-empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            max-width: 400px;
+            padding: 40px;
+        }
+        
+        .star-empty-state__icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .star-empty-state__title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 12px;
+        }
+        
+        .star-empty-state__desc {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="page--with-header page--with-bottom-nav star-page">
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="container header__inner">
+            <a href="/" class="header__logo">
+                <svg class="header__logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" fill="url(#logo-gradient)"/>
+                    <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#36b3fa"/>
+                            <stop offset="100%" stop-color="#027fcf"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="header__logo-text">深觅</span>
+            </a>
+
+            <nav class="header__nav hidden-sm">
+                <a href="/" class="header__nav-link">首页</a>
+                <a href="/assessment/index.html" class="header__nav-link">测评中心</a>
+                <a href="/chat/index.html" class="header__nav-link">AI 对话</a>
+                <a href="/star/index.html" class="header__nav-link header__nav-link--active">我的星图</a>
+            </nav>
+
+            <div class="header__user-actions">
+                <a href="/user/index.html" class="btn btn--ghost btn--md">个人中心</a>
+            </div>
+
+            <button class="header__menu-toggle md:hidden" aria-label="打开菜单">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- 移动端菜单 -->
+    <div class="mobile-menu">
+        <div class="mobile-menu__overlay"></div>
+        <div class="mobile-menu__panel">
+            <div class="mobile-menu__header">
+                <span class="mobile-menu__title">菜单</span>
+                <button class="mobile-menu__close" aria-label="关闭菜单">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <nav class="mobile-menu__nav">
+                <a href="/" class="mobile-menu__link">首页</a>
+                <a href="/assessment/index.html" class="mobile-menu__link">测评中心</a>
+                <a href="/chat/index.html" class="mobile-menu__link">AI 对话</a>
+                <a href="/star/index.html" class="mobile-menu__link mobile-menu__link--active">我的星图</a>
+                <a href="/user/index.html" class="mobile-menu__link">个人中心</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 星图主容器 -->
+    <div class="star-container">
+        <!-- 画布区域 -->
+        <div class="star-canvas-wrapper">
+            <!-- 加载状态 -->
+            <div class="star-loading" id="loading">
+                <div class="star-loading__spinner"></div>
+                <p>正在构建您的个人星图...</p>
+            </div>
+            
+            <!-- 空状态 -->
+            <div class="star-empty-state" id="empty-state" style="display: none;">
+                <div class="star-empty-state__icon">🌟</div>
+                <h2 class="star-empty-state__title">还没有星图数据</h2>
+                <p class="star-empty-state__desc">完成 VIA 性格优势测评，即可生成您的个人星图，可视化展现您的24项性格优势分布。</p>
+                <a href="/assessment/index.html" class="btn btn--primary btn--lg">去测评</a>
+            </div>
+            
+            <!-- 星图画布 -->
+            <div id="star-canvas"></div>
+            
+            <!-- 信息栏 -->
+            <div class="star-info-bar" id="info-bar" style="display: none;">
+                <div class="star-info-bar__title">我的性格优势星图</div>
+                <div class="star-info-bar__desc">基于 VIA 测评结果的可视化呈现</div>
+            </div>
+            
+            <!-- 画布控制 -->
+            <div class="star-controls" id="controls" style="display: none;">
+                <button class="star-control-btn" id="btn-zoom-in" title="放大">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <line x1="11" y1="8" x2="11" y2="14"/>
+                        <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                </button>
+                <button class="star-control-btn" id="btn-zoom-out" title="缩小">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                </button>
+                <button class="star-control-btn" id="btn-reset" title="重置视图">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- 图例 -->
+            <div class="star-legend" id="legend" style="display: none;">
+                <div class="star-legend__title">美德类别</div>
+                <div class="star-legend__item">
+                    <div class="star-legend__dot" style="background: #4A90D9;"></div>
+                    <span>智慧</span>
+                </div>
+                <div class="star-legend__item">
+                    <div class="star-legend__dot" style="background: #50C878;"></div>
+                    <span>勇气</span>
+                </div>
+                <div class="star-legend__item">
+                    <div class="star-legend__dot" style="background: #FF6B9D;"></div>
+                    <span>仁爱</span>
+                </div>
+                <div class="star-legend__item">
+                    <div class="star-legend__dot" style="background: #F39C12;"></div>
+                    <span>正义</span>
+                </div>
+                <div class="star-legend__item">
+                    <div class="star-legend__dot" style="background: #9B59B6;"></div>
+                    <span>节制</span>
+                </div>
+                <div class="star-legend__item">
+                    <div class="star-legend__dot" style="background: #1ABC9C;"></div>
+                    <span>超越</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 详情面板 -->
+        <div class="star-detail-panel" id="detail-panel">
+            <div class="star-detail__header">
+                <h3 class="star-detail__title">节点详情</h3>
+                <button class="star-detail__close" id="btn-close-panel">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="star-detail__content" id="detail-content">
+                <div class="star-detail__empty">
+                    <p>点击星图中的节点查看详情</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 移动端底部导航 (design0311规范) -->
+    <nav class="bottom-nav md:hidden">
+        <a href="/chat/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="bottom-nav__label">深潜</span>
+        </a>
+        <a href="/star/index.html" class="bottom-nav__item bottom-nav__item--active">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span class="bottom-nav__label">观己</span>
+        </a>
+        <a href="/explore/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+            </svg>
+            <span class="bottom-nav__label">追觅</span>
+        </a>
+        <a href="/user/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="bottom-nav__label">我的</span>
+        </a>
+    </nav>
+
+    <!-- 脚本 -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="star.js"></script>
+    <!-- 调试脚本（开发时使用，生产环境可删除） -->
+    <script src="debug-403.js"></script>
+    <script>
+        // 页面加载后自动检查403问题
+        window.addEventListener('load', function() {
+            if (window.location.hash === '#debug') {
+                console.log('运行403诊断...');
+                if (typeof debugStar403 === 'function') {
+                    debugStar403();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

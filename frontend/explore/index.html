@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="深觅 AI Coach - 计划制定、资源推荐与情感支持">
+    <title>追觅 - 深觅 AI Coach</title>
+    
+    <!-- 样式文件 -->
+    <link rel="stylesheet" href="../styles/variables.css">
+    <link rel="stylesheet" href="../styles/base.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/layout.css">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    
+    <style>
+        /* 追觅页面样式 */
+        .explore-page {
+            min-height: 100vh;
+            background: var(--bg-primary);
+        }
+        
+        /* 顶部标签切换 */
+        .explore-tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: var(--header-height-mobile);
+            z-index: 100;
+        }
+        
+        @media (min-width: 768px) {
+            .explore-tabs {
+                top: var(--header-height);
+            }
+        }
+        
+        .explore-tab {
+            flex: 1;
+            padding: var(--space-3) var(--space-4);
+            text-align: center;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+        }
+        
+        .explore-tab--active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        
+        /* 内容区域 */
+        .explore-content {
+            padding: var(--space-4);
+            padding-bottom: calc(var(--bottom-nav-height) + var(--space-4));
+        }
+        
+        .explore-section {
+            display: none;
+        }
+        
+        .explore-section--active {
+            display: block;
+        }
+        
+        /* ========== 计划看板 (Kanban) ========== */
+        .kanban-board {
+            display: flex;
+            gap: var(--space-4);
+            overflow-x: auto;
+            padding-bottom: var(--space-4);
+        }
+        
+        @media (max-width: 768px) {
+            .kanban-board {
+                flex-direction: column;
+            }
+        }
+        
+        .kanban-column {
+            flex: 1;
+            min-width: 280px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+        }
+        
+        .kanban-column__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+        
+        .kanban-column__title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .kanban-column__count {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: var(--font-size-xs);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-full);
+        }
+        
+        /* 状态颜色 */
+        .kanban-column--todo .kanban-column__title::before {
+            content: "⭕";
+        }
+        .kanban-column--inprogress .kanban-column__title::before {
+            content: "🔵";
+        }
+        .kanban-column--done .kanban-column__title::before {
+            content: "✅";
+        }
+        
+        .kanban-column--inprogress {
+            border-top: 3px solid var(--color-secondary);
+        }
+        
+        .kanban-column--done {
+            border-top: 3px solid var(--success-500);
+        }
+        
+        /* 计划卡片 */
+        .plan-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-bottom: var(--space-3);
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .plan-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .plan-card__title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .plan-card__meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-bottom: var(--space-3);
+        }
+        
+        .plan-card__meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .plan-card__progress {
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: var(--space-2);
+        }
+        
+        .plan-card__progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+            border-radius: var(--radius-full);
+            transition: width 0.3s;
+        }
+        
+        .plan-card__footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .plan-card__tags {
+            display: flex;
+            gap: var(--space-1);
+        }
+        
+        .plan-card__tag {
+            font-size: var(--font-size-2xs);
+            padding: var(--space-1) var(--space-2);
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: var(--radius-full);
+        }
+        
+        .plan-card__menu {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+        }
+        
+        .plan-card__menu:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        /* 添加按钮 */
+        .kanban-add-btn {
+            width: 100%;
+            padding: var(--space-3);
+            border: 2px dashed var(--border-medium);
+            border-radius: var(--radius-lg);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .kanban-add-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        
+        /* ========== 资源推荐流 ========== */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-4);
+        }
+        
+        @media (max-width: 640px) {
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .resource-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            transition: all 0.2s;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .resource-card__cover {
+            height: 160px;
+            background: linear-gradient(135deg, var(--primary-200), var(--primary-400));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .resource-card__content {
+            padding: var(--space-4);
+        }
+        
+        .resource-card__category {
+            font-size: var(--font-size-xs);
+            color: var(--color-primary);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-2);
+        }
+        
+        .resource-card__title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .resource-card__desc {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            line-height: var(--line-height-relaxed);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: var(--space-3);
+        }
+        
+        .resource-card__footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: var(--space-3);
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .resource-card__source {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .resource-card__actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+        
+        .resource-card__action {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .resource-card__action:hover {
+            background: var(--bg-tertiary);
+            color: var(--color-primary);
+        }
+        
+        /* ========== 情感支持 ========== */
+        .mood-section {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .mood-checkin {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            border-radius: var(--radius-2xl);
+            padding: var(--space-8);
+            color: white;
+            text-align: center;
+            margin-bottom: var(--space-6);
+        }
+        
+        .mood-checkin__title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-2);
+        }
+        
+        .mood-checkin__subtitle {
+            font-size: var(--font-size-base);
+            opacity: 0.9;
+            margin-bottom: var(--space-6);
+        }
+        
+        .mood-rating {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        .mood-rating__item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+            cursor: pointer;
+            transition: transform 0.2s;
+            opacity: 0.7;
+        }
+        
+        .mood-rating__item:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        
+        .mood-rating__emoji {
+            font-size: 40px;
+        }
+        
+        .mood-rating__label {
+            font-size: var(--font-size-xs);
+        }
+        
+        .mood-checkin__tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .mood-tag {
+            padding: var(--space-2) var(--space-3);
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mood-tag:hover,
+        .mood-tag--selected {
+            background: rgba(255,255,255,0.4);
+        }
+        
+        /* 情感支持工具 */
+        .support-tools {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        @media (max-width: 480px) {
+            .support-tools {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .support-tool {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            text-align: center;
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .support-tool:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .support-tool__icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto var(--space-3);
+        }
+        
+        .support-tool--breathe .support-tool__icon {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+        }
+        
+        .support-tool--journal .support-tool__icon {
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+        }
+        
+        .support-tool--chat .support-tool__icon {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        }
+        
+        .support-tool--meditate .support-tool__icon {
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+        }
+        
+        .support-tool__title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-1);
+        }
+        
+        .support-tool__desc {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+        
+        /* 情绪趋势图 */
+        .mood-chart {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            border: 1px solid var(--border-light);
+        }
+        
+        .mood-chart__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+        
+        .mood-chart__title {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+        
+        .mood-chart__period {
+            display: flex;
+            gap: var(--space-2);
+        }
+        
+        .mood-chart__btn {
+            padding: var(--space-1) var(--space-3);
+            font-size: var(--font-size-xs);
+            border-radius: var(--radius-full);
+            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .mood-chart__btn--active {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .mood-chart__content {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+        
+        /* 紧急支持 */
+        .emergency-support {
+            margin-top: var(--space-6);
+            padding: var(--space-4);
+            background: var(--error-50);
+            border: 1px solid var(--error-200);
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+        
+        .emergency-support__title {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--error-700);
+            margin-bottom: var(--space-2);
+        }
+        
+        .emergency-support__link {
+            color: var(--error-600);
+            font-weight: var(--font-weight-semibold);
+            text-decoration: underline;
+        }
+        
+        /* 创建计划弹窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-overlay);
+            z-index: var(--z-modal-backdrop);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+        }
+        
+        .modal-overlay--visible {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-2xl);
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: modal-in 0.3s ease-out;
+        }
+        
+        @keyframes modal-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal__header {
+            padding: var(--space-6);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal__title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+        
+        .modal__close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        
+        .modal__close:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .modal__body {
+            padding: var(--space-6);
+            overflow-y: auto;
+        }
+        
+        .modal__footer {
+            padding: var(--space-4) var(--space-6);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-3);
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: var(--space-4);
+        }
+        
+        .form-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-lg);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body class="page--with-header page--with-bottom-nav explore-page">
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="container header__inner">
+            <a href="/" class="header__logo">
+                <svg class="header__logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" fill="url(#logo-gradient)"/>
+                    <path d="M16 8v8l5 5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#4A90D9"/>
+                            <stop offset="100%" stop-color="#1E3A5F"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="header__logo-text">深觅</span>
+            </a>
+
+            <nav class="header__nav hidden-sm">
+                <a href="/chat/index.html" class="header__nav-link">AI 对话</a>
+                <a href="/star/index.html" class="header__nav-link">我的星图</a>
+                <a href="/explore/index.html" class="header__nav-link header__nav-link--active">追觅</a>
+            </nav>
+
+            <div class="header__user-actions">
+                <a href="/user/index.html" class="btn btn--ghost btn--md">个人中心</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 顶部标签切换 -->
+    <div class="explore-tabs">
+        <button class="explore-tab explore-tab--active" data-tab="plans">📋 计划看板</button>
+        <button class="explore-tab" data-tab="resources">📚 资源推荐</button>
+        <button class="explore-tab" data-tab="mood">💚 情感支持</button>
+    </div>
+
+    <!-- 内容区域 -->
+    <main class="explore-content">
+        <!-- 计划看板 -->
+        <section id="plans-section" class="explore-section explore-section--active">
+            <div class="kanban-board">
+                <!-- 待办列 -->
+                <div class="kanban-column kanban-column--todo">
+                    <div class="kanban-column__header">
+                        <span class="kanban-column__title">待办</span>
+                        <span class="kanban-column__count">2</span>
+                    </div>
+                    
+                    <div class="plan-card" onclick="showPlanDetail(1)">
+                        <h4 class="plan-card__title">完成 VIA 性格测评</h4>
+                        <div class="plan-card__meta">
+                            <span class="plan-card__meta-item">📅 今天</span>
+                            <span class="plan-card__meta-item">⏱️ 15分钟</span>
+                        </div>
+                        <div class="plan-card__progress">
+                            <div class="plan-card__progress-bar" style="width: 30%"></div>
+                        </div>
+                        <div class="plan-card__footer">
+                            <div class="plan-card__tags">
+                                <span class="plan-card__tag">自我认知</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="plan-card" onclick="showPlanDetail(2)">
+                        <h4 class="plan-card__title">制定 3 个月成长计划</h4>
+                        <div class="plan-card__meta">
+                            <span class="plan-card__meta-item">📅 本周</span>
+                            <span class="plan-card__meta-item">🤖 AI建议</span>
+                        </div>
+                        <div class="plan-card__progress">
+                            <div class="plan-card__progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="plan-card__footer">
+                            <div class="plan-card__tags">
+                                <span class="plan-card__tag">目标设定</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="kanban-add-btn" onclick="showCreatePlanModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加计划
+                    </button>
+                </div>
+                
+                <!-- 进行中列 -->
+                <div class="kanban-column kanban-column--inprogress">
+                    <div class="kanban-column__header">
+                        <span class="kanban-column__title">进行中</span>
+                        <span class="kanban-column__count">1</span>
+                    </div>
+                    
+                    <div class="plan-card" onclick="showPlanDetail(3)">
+                        <h4 class="plan-card__title">学习创意优势课程</h4>
+                        <div class="plan-card__meta">
+                            <span class="plan-card__meta-item">📅 第2周</span>
+                            <span class="plan-card__meta-item">📊 60%</span>
+                        </div>
+                        <div class="plan-card__progress">
+                            <div class="plan-card__progress-bar" style="width: 60%"></div>
+                        </div>
+                        <div class="plan-card__footer">
+                            <div class="plan-card__tags">
+                                <span class="plan-card__tag">优势发展</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 已完成列 -->
+                <div class="kanban-column kanban-column--done">
+                    <div class="kanban-column__header">
+                        <span class="kanban-column__title">已完成</span>
+                        <span class="kanban-column__count">1</span>
+                    </div>
+                    
+                    <div class="plan-card" onclick="showPlanDetail(4)">
+                        <h4 class="plan-card__title">了解深觅平台功能</h4>
+                        <div class="plan-card__meta">
+                            <span class="plan-card__meta-item">✅ 已完成</span>
+                            <span class="plan-card__meta-item">📅 昨天</span>
+                        </div>
+                        <div class="plan-card__progress">
+                            <div class="plan-card__progress-bar" style="width: 100%"></div>
+                        </div>
+                        <div class="plan-card__footer">
+                            <div class="plan-card__tags">
+                                <span class="plan-card__tag">入门</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 资源推荐 -->
+        <section id="resources-section" class="explore-section">
+            <div class="resource-grid">
+                <article class="resource-card">
+                    <div class="resource-card__cover">📖</div>
+                    <div class="resource-card__content">
+                        <div class="resource-card__category">书籍推荐</div>
+                        <h3 class="resource-card__title">《优势识别器 2.0》</h3>
+                        <p class="resource-card__desc">汤姆·拉思经典著作，帮助您识别和发展自己的核心优势，突破"补短板"的思维局限。</p>
+                        <div class="resource-card__footer">
+                            <span class="resource-card__source">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                Gallup Press
+                            </span>
+                            <div class="resource-card__actions">
+                                <span class="resource-card__action" title="收藏">♡</span>
+                                <span class="resource-card__action" title="分享">↗</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="resource-card">
+                    <div class="resource-card__cover" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">🎧</div>
+                    <div class="resource-card__content">
+                        <div class="resource-card__category">音频课程</div>
+                        <h3 class="resource-card__title">正念冥想入门：21天减压之旅</h3>
+                        <p class="resource-card__desc">基于正念认知疗法(MBSR)设计的21天音频课程，每天10分钟，帮助您建立正念习惯，缓解压力。</p>
+                        <div class="resource-card__footer">
+                            <span class="resource-card__source">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                </svg>
+                                深觅精选
+                            </span>
+                            <div class="resource-card__actions">
+                                <span class="resource-card__action" title="收藏">♡</span>
+                                <span class="resource-card__action" title="分享">↗</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="resource-card">
+                    <div class="resource-card__cover" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe);">📝</div>
+                    <div class="resource-card__content">
+                        <div class="resource-card__category">文章</div>
+                        <h3 class="resource-card__title">如何发挥你的创造力优势？</h3>
+                        <p class="resource-card__desc">根据您的 VIA 测评结果，您的创造力得分较高。本文提供 7 个实用技巧，帮助您在工作和生活中更好地发挥这一优势。</p>
+                        <div class="resource-card__footer">
+                            <span class="resource-card__source">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                </svg>
+                                个性化推荐
+                            </span>
+                            <div class="resource-card__actions">
+                                <span class="resource-card__action" title="收藏">♡</span>
+                                <span class="resource-card__action" title="分享">↗</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                
+                <article class="resource-card">
+                    <div class="resource-card__cover" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8);">🎯</div>
+                    <div class="resource-card__content">
+                        <div class="resource-card__category">工具</div>
+                        <h3 class="resource-card__title">OKR 目标管理模板</h3>
+                        <p class="resource-card__desc">为您的季度目标设定提供的专业 OKR 模板，包含目标设定、关键结果追踪、周复盘等完整工作流。</p>
+                        <div class="resource-card__footer">
+                            <span class="resource-card__source">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                                Notion 模板
+                            </span>
+                            <div class="resource-card__actions">
+                                <span class="resource-card__action" title="收藏">♡</span>
+                                <span class="resource-card__action" title="分享">↗</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 情感支持 -->
+        <section id="mood-section" class="explore-section">
+            <div class="mood-section">
+                <!-- 情绪打卡 -->
+                <div class="mood-checkin">
+                    <h2 class="mood-checkin__title">今天感觉如何？</h2>
+                    <p class="mood-checkin__subtitle">记录当下的情绪，帮助您更好地了解自己</p>
+                    
+                    <div class="mood-rating">
+                        <div class="mood-rating__item" onclick="selectMood(1)">
+                            <span class="mood-rating__emoji">😔</span>
+                            <span class="mood-rating__label">低落</span>
+                        </div>
+                        <div class="mood-rating__item" onclick="selectMood(2)">
+                            <span class="mood-rating__emoji">😕</span>
+                            <span class="mood-rating__label">一般</span>
+                        </div>
+                        <div class="mood-rating__item" onclick="selectMood(3)">
+                            <span class="mood-rating__emoji">😐</span>
+                            <span class="mood-rating__label">平静</span>
+                        </div>
+                        <div class="mood-rating__item" onclick="selectMood(4)">
+                            <span class="mood-rating__emoji">🙂</span>
+                            <span class="mood-rating__label">不错</span>
+                        </div>
+                        <div class="mood-rating__item" onclick="selectMood(5)">
+                            <span class="mood-rating__emoji">😊</span>
+                            <span class="mood-rating__label">很好</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mood-checkin__tags">
+                        <span class="mood-tag" onclick="toggleTag(this)">😰 焦虑</span>
+                        <span class="mood-tag" onclick="toggleTag(this)">😴 疲惫</span>
+                        <span class="mood-tag" onclick="toggleTag(this)">🤔 迷茫</span>
+                        <span class="mood-tag" onclick="toggleTag(this)">💪 有动力</span>
+                        <span class="mood-tag" onclick="toggleTag(this)">😌 满足</span>
+                        <span class="mood-tag" onclick="toggleTag(this)">🎉 兴奋</span>
+                    </div>
+                </div>
+                
+                <!-- 支持工具 -->
+                <div class="support-tools">
+                    <div class="support-tool support-tool--breathe" onclick="openBreatheTool()">
+                        <div class="support-tool__icon">🫁</div>
+                        <h3 class="support-tool__title">呼吸练习</h3>
+                        <p class="support-tool__desc">1-5分钟引导呼吸，快速放松</p>
+                    </div>
+                    
+                    <div class="support-tool support-tool--journal" onclick="openJournalTool()">
+                        <div class="support-tool__icon">📝</div>
+                        <h3 class="support-tool__title">情绪日记</h3>
+                        <p class="support-tool__desc">记录此刻的想法与感受</p>
+                    </div>
+                    
+                    <div class="support-tool support-tool--chat" onclick="location.href='/chat/index.html'">
+                        <div class="support-tool__icon">💬</div>
+                        <h3 class="support-tool__title">倾诉对话</h3>
+                        <p class="support-tool__desc">与AI教练聊聊你的困扰</p>
+                    </div>
+                    
+                    <div class="support-tool support-tool--meditate" onclick="openMeditateTool()">
+                        <div class="support-tool__icon">🧘</div>
+                        <h3 class="support-tool__title">冥想引导</h3>
+                        <p class="support-tool__desc">10-20分钟深度放松</p>
+                    </div>
+                </div>
+                
+                <!-- 情绪趋势 -->
+                <div class="mood-chart">
+                    <div class="mood-chart__header">
+                        <h3 class="mood-chart__title">📈 情绪趋势</h3>
+                        <div class="mood-chart__period">
+                            <button class="mood-chart__btn mood-chart__btn--active">周</button>
+                            <button class="mood-chart__btn">月</button>
+                        </div>
+                    </div>
+                    <div class="mood-chart__content">
+                        <p>情绪趋势图表将在这里显示</p>
+                    </div>
+                </div>
+                
+                <!-- 紧急支持 -->
+                <div class="emergency-support">
+                    <p class="emergency-support__title">🆘 如果你正处于危机中</p>
+                    <a href="tel:400-161-9995" class="emergency-support__link">
+                        24小时心理援助热线: 400-161-9995
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部导航 -->
+    <nav class="bottom-nav md:hidden">
+        <a href="/chat/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="bottom-nav__label">深潜</span>
+        </a>
+        <a href="/star/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span class="bottom-nav__label">观己</span>
+        </a>
+        <a href="/explore/index.html" class="bottom-nav__item bottom-nav__item--active">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+            </svg>
+            <span class="bottom-nav__label">追觅</span>
+        </a>
+        <a href="/user/index.html" class="bottom-nav__item">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="bottom-nav__label">我的</span>
+        </a>
+    </nav>
+
+    <!-- 创建计划弹窗 -->
+    <div id="createPlanModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal__header">
+                <h3 class="modal__title">创建新计划</h3>
+                <button class="modal__close" onclick="hideCreatePlanModal()">✕</button>
+            </div>
+            <div class="modal__body">
+                <div class="form-group">
+                    <label class="form-label">计划名称</label>
+                    <input type="text" class="form-input" placeholder="例如：学习英语口语">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <textarea class="form-textarea" placeholder="简要描述你的计划..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">截止日期</label>
+                    <input type="date" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">关联人生领域</label>
+                    <select class="form-select">
+                        <option value="">请选择...</option>
+                        <option value="study">📚 学业</option>
+                        <option value="career">💼 职业</option>
+                        <option value="health">💪 健康</option>
+                        <option value="relationship">💕 关系</option>
+                        <option value="interest">🎨 兴趣</option>
+                        <option value="growth">🌱 成长</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--ghost" onclick="hideCreatePlanModal()">取消</button>
+                <button class="btn btn--primary" onclick="createPlan()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        if (!localStorage.getItem('access_token')) {
+            sessionStorage.setItem('redirect_after_login', window.location.href);
+            window.location.href = '/login.html';
+        }
+
+        // 标签切换
+        document.querySelectorAll('.explore-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                // 更新标签样式
+                document.querySelectorAll('.explore-tab').forEach(t => t.classList.remove('explore-tab--active'));
+                tab.classList.add('explore-tab--active');
+                
+                // 显示对应内容
+                document.querySelectorAll('.explore-section').forEach(s => s.classList.remove('explore-section--active'));
+                document.getElementById(`${targetTab}-section`).classList.add('explore-section--active');
+                
+                // 更新URL参数
+                const url = new URL(window.location);
+                url.searchParams.set('tab', targetTab);
+                window.history.replaceState({}, '', url);
+            });
+        });
+
+        // 根据URL参数激活对应标签
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'plans';
+        document.querySelector(`[data-tab="${activeTab}"]`)?.click();
+
+        // 显示创建计划弹窗
+        function showCreatePlanModal() {
+            document.getElementById('createPlanModal').classList.add('modal-overlay--visible');
+        }
+
+        // 隐藏创建计划弹窗
+        function hideCreatePlanModal() {
+            document.getElementById('createPlanModal').classList.remove('modal-overlay--visible');
+        }
+
+        // 创建计划
+        function createPlan() {
+            hideCreatePlanModal();
+            showToast('计划创建成功！', 'success');
+        }
+
+        // 显示计划详情
+        function showPlanDetail(planId) {
+            showToast(`查看计划 ${planId} 详情`, 'info');
+        }
+
+        // 选择情绪
+        function selectMood(rating) {
+            document.querySelectorAll('.mood-rating__item').forEach((item, index) => {
+                item.style.opacity = index + 1 === rating ? '1' : '0.5';
+                item.style.transform = index + 1 === rating ? 'scale(1.2)' : 'scale(1)';
+            });
+        }
+
+        // 切换情绪标签
+        function toggleTag(tag) {
+            tag.classList.toggle('mood-tag--selected');
+        }
+
+        // 打开呼吸工具
+        function openBreatheTool() {
+            showToast('呼吸练习功能开发中...', 'info');
+        }
+
+        // 打开日记工具
+        function openJournalTool() {
+            showToast('情绪日记功能开发中...', 'info');
+        }
+
+        // 打开冥想工具
+        function openMeditateTool() {
+            showToast('冥想引导功能开发中...', 'info');
+        }
+
+        // Toast 提示
+        function showToast(message, type = 'info') {
+            const container = document.querySelector('.toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // 点击遮罩关闭弹窗
+        document.getElementById('createPlanModal').addEventListener('click', (e) => {
+            if (e.target.id === 'createPlanModal') {
+                hideCreatePlanModal();
+            }
+        });
+    </script>
+</body>
+</html>
