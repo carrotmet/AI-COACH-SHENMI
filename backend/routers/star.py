@@ -30,6 +30,9 @@ from database.models import (
     VirtueCategory, StrengthDefinition
 )
 
+# 导入服务层
+from services.star_service import StarService
+
 # 创建路由
 router = APIRouter(
     tags=["star"],
@@ -167,6 +170,16 @@ class StarEdge(BaseModel):
     label: Optional[str] = Field(None, description="边标签")
 
 
+class CreateEdgeRequest(BaseModel):
+    """创建边请求"""
+    graph_id: str = Field(..., description="图谱ID")
+    source: str = Field(..., description="源节点ID")
+    target: str = Field(..., description="目标节点ID")
+    relation_type: str = Field("relates_to", description="关系类型")
+    weight: float = Field(1.0, description="关系强度")
+    label: Optional[str] = Field(None, description="边标签")
+
+
 class StarGraphResponse(BaseModel):
     """星图响应"""
     graph_id: str = Field(..., description="图谱ID")
@@ -183,6 +196,26 @@ class NodeDetailResponse(BaseModel):
     children: List[StarNode] = Field(default_factory=list, description="子节点")
     related_memories: List[Dict[str, Any]] = Field(default_factory=list, description="关联记忆")
     ai_suggestions: List[str] = Field(default_factory=list, description="AI建议")
+
+
+class CreateNodeRequest(BaseModel):
+    """创建节点请求"""
+    graph_id: str = Field(..., description="星图ID")
+    node_type: str = Field(..., description="节点类型")
+    title: str = Field(..., description="节点标题")
+    description: Optional[str] = Field(None, description="节点描述")
+    category: Optional[str] = Field(None, description="所属类别")
+    level: int = Field(3, ge=1, le=4, description="层级 1-4")
+    parent_id: Optional[str] = Field(None, description="父节点ID")
+    size: int = Field(40, description="节点大小")
+    color: str = Field("#4A90D9", description="节点颜色")
+    shape: str = Field("circle", description="节点形状")
+    score: Optional[float] = Field(None, description="得分")
+    rank: Optional[int] = Field(None, description="排名")
+    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict, description="扩展数据")
+    is_expanded: bool = Field(False, description="是否展开")
+    position_x: Optional[float] = Field(None, description="X坐标")
+    position_y: Optional[float] = Field(None, description="Y坐标")
 
 
 # ========== 辅助函数 ==========
@@ -602,13 +635,433 @@ async def expand_node(
     """
     user_id = current_user["id"]
     
-    # 这里可以实现更复杂的展开逻辑
-    # 目前返回基础结构
+    # 使用服务层获取子节点
+    service = StarService(db)
+    children = await service.get_child_nodes(node_id, user_id)
+    
+    # 更新节点展开状态
+    await service.update_expand_state(node_id, user_id, True)
+    
     return success_response(
         data={
             "node_id": node_id,
-            "children": [],
-            "edges": [],
+            "children": [
+                {
+                    "id": child.id,
+                    "node_type": child.node_type,
+                    "title": child.title,
+                    "description": child.description,
+                    "category": child.category,
+                    "level": child.level,
+                    "parent_id": child.parent_id,
+                    "size": child.size,
+                    "color": child.color,
+                    "shape": child.shape,
+                    "score": child.score,
+                    "rank": child.rank,
+                    "metadata": child.metadata,
+                    "is_expanded": child.is_expanded
+                }
+                for child in children
+            ],
             "has_more": False
         }
     )
+
+
+# ========== 星图管理路由 ==========
+
+@router.get("/graphs")
+async def get_star_graphs(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """获取用户的星图列表"""
+    service = StarService(db)
+    graphs = await service.get_graphs(current_user["id"])
+    return success_response(data=[{
+        "id": g.id,
+        "name": g.name,
+        "type": g.type,
+        "source": g.source,
+        "is_default": g.is_default,
+        "node_count": g.node_count,
+        "created_at": g.created_at.isoformat() if g.created_at else None,
+        "updated_at": g.updated_at.isoformat() if g.updated_at else None
+    } for g in graphs])
+
+
+@router.post("/graphs")
+async def create_star_graph(
+    name: str,
+    graph_type: str = "scene",
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """创建新星图"""
+    service = StarService(db)
+    graph = await service.create_graph(
+        user_id=current_user["id"],
+        name=name,
+        graph_type=graph_type
+    )
+    return success_response(data={
+        "id": graph.id,
+        "name": graph.name,
+        "type": graph.type,
+        "source": graph.source,
+        "is_default": graph.is_default,
+        "created_at": graph.created_at.isoformat() if graph.created_at else None
+    })
+
+
+@router.get("/graphs/{graph_id}")
+async def get_star_graph_detail(
+    graph_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """获取星图详情（包含节点和边）"""
+    service = StarService(db)
+    data = await service.get_graph_with_data(graph_id, current_user["id"])
+    graph = data["graph"]
+    nodes = data["nodes"]
+    edges = data["edges"]
+    
+    # 构建纯字典响应，避免SQLAlchemy对象序列化问题
+    result = {
+        "id": str(graph.id) if graph.id else None,
+        "name": str(graph.name) if graph.name else None,
+        "type": str(graph.type) if graph.type else None,
+        "source": str(graph.source) if graph.source else None,
+        "is_default": bool(graph.is_default) if graph.is_default is not None else False,
+        "node_count": int(graph.node_count) if graph.node_count else 0,
+        "created_at": graph.created_at.isoformat() if graph.created_at else None,
+        "updated_at": graph.updated_at.isoformat() if graph.updated_at else None,
+        "nodes": [],
+        "edges": []
+    }
+    
+    # 处理节点
+    for n in nodes:
+        node_data = {
+            "id": str(n.id) if n.id else None,
+            "node_type": str(n.node_type) if n.node_type else None,
+            "title": str(n.title) if n.title else None,
+            "description": str(n.description) if n.description else None,
+            "category": str(n.category) if n.category else None,
+            "level": int(n.level) if n.level else None,
+            "parent_id": str(n.parent_id) if n.parent_id else None,
+            "size": int(n.size) if n.size else 40,
+            "color": str(n.color) if n.color else "#4A90D9",
+            "shape": str(n.shape) if n.shape else "circle",
+            "score": float(n.score) if n.score else None,
+            "rank": int(n.rank) if n.rank else None,
+            "metadata": {},
+            "is_expanded": bool(n.is_expanded) if n.is_expanded is not None else False,
+            "position_x": float(n.position_x) if n.position_x else None,
+            "position_y": float(n.position_y) if n.position_y else None
+        }
+        # 安全获取元数据
+        try:
+            meta = getattr(n, '_metadata', None) or getattr(n, 'metadata', None)
+            if meta and isinstance(meta, dict):
+                node_data["metadata"] = meta
+        except:
+            pass
+        result["nodes"].append(node_data)
+    
+    # 处理边
+    for e in edges:
+        edge_data = {
+            "id": str(e.id) if e.id else None,
+            "source": str(e.source) if e.source else None,
+            "target": str(e.target) if e.target else None,
+            "relation_type": str(e.relation_type) if e.relation_type else None,
+            "weight": float(e.weight) if e.weight else 1.0,
+            "label": str(e.label) if e.label else None
+        }
+        result["edges"].append(edge_data)
+    
+    return success_response(data=result)
+
+
+@router.put("/graphs/{graph_id}")
+async def update_star_graph(
+    graph_id: str,
+    name: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """更新星图信息"""
+    service = StarService(db)
+    graph = await service.update_graph(graph_id, current_user["id"], {"name": name})
+    return success_response(data={
+        "id": graph.id,
+        "name": graph.name,
+        "updated_at": graph.updated_at.isoformat() if graph.updated_at else None
+    })
+
+
+@router.delete("/graphs/{graph_id}")
+async def delete_star_graph(
+    graph_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """删除星图"""
+    service = StarService(db)
+    await service.delete_graph(graph_id, current_user["id"])
+    return success_response(message="星图已删除")
+
+
+@router.post("/graphs/{graph_id}/set-default")
+async def set_default_star_graph(
+    graph_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """设置默认星图"""
+    service = StarService(db)
+    graph = await service.set_default_graph(graph_id, current_user["id"])
+    return success_response(data={
+        "id": graph.id,
+        "name": graph.name,
+        "is_default": graph.is_default
+    })
+
+
+@router.post("/graphs/import-via")
+async def import_star_graph_from_via(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """从VIA测评导入生成主星图"""
+    service = StarService(db)
+    
+    # 获取用户最新的测评
+    stmt = select(Assessment).where(
+        and_(
+            Assessment.user_id == current_user["id"],
+            Assessment.status == "completed"
+        )
+    ).order_by(Assessment.completed_at.desc()).limit(1)
+    result = await db.execute(stmt)
+    assessment = result.scalar_one_or_none()
+    
+    if not assessment:
+        return error_response(message="请先完成VIA性格优势测评")
+    
+    graph = await service.import_from_via(current_user["id"], assessment.id)
+    return success_response(data={
+        "graph_id": graph.id,
+        "name": graph.name,
+        "node_count": graph.node_count
+    })
+
+
+@router.post("/graphs/{graph_id}/clone")
+async def clone_star_graph(
+    graph_id: str,
+    new_name: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """克隆星图"""
+    service = StarService(db)
+    new_graph = await service.clone_graph(graph_id, current_user["id"], new_name)
+    return success_response(data={
+        "id": new_graph.id,
+        "name": new_graph.name,
+        "node_count": new_graph.node_count
+    })
+
+
+# ========== 节点管理路由 ==========
+
+@router.get("/graphs/{graph_id}/nodes")
+async def get_star_nodes(
+    graph_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """获取星图的所有持久化节点"""
+    service = StarService(db)
+    nodes = await service.get_nodes(graph_id, current_user["id"])
+    return success_response(data=[{
+        "id": n.id,
+        "node_type": n.node_type,
+        "title": n.title,
+        "description": n.description,
+        "category": n.category,
+        "level": n.level,
+        "parent_id": n.parent_id,
+        "size": n.size,
+        "color": n.color,
+        "shape": n.shape,
+        "score": n.score,
+        "rank": n.rank,
+        "metadata": n.metadata,
+        "is_expanded": n.is_expanded,
+        "position_x": n.position_x,
+        "position_y": n.position_y
+    } for n in nodes])
+
+
+@router.post("/nodes")
+async def create_star_node(
+    request: CreateNodeRequest,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """创建节点（持久化）"""
+    service = StarService(db)
+    node = await service.create_node(current_user["id"], request.graph_id, {
+        "node_type": request.node_type,
+        "title": request.title,
+        "description": request.description,
+        "category": request.category,
+        "level": request.level,
+        "parent_id": request.parent_id,
+        "size": request.size,
+        "color": request.color,
+        "shape": request.shape,
+        "score": request.score,
+        "rank": request.rank,
+        "metadata": request.metadata or {},
+        "is_expanded": request.is_expanded,
+        "position_x": request.position_x,
+        "position_y": request.position_y
+    })
+    return success_response(data={
+        "id": node.id,
+        "title": node.title,
+        "node_type": node.node_type,
+        "level": node.level
+    })
+
+
+@router.put("/nodes/{node_id}")
+async def update_star_node(
+    node_id: str,
+    update_data: Dict[str, Any],
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """更新节点信息"""
+    service = StarService(db)
+    node = await service.update_node(node_id, current_user["id"], update_data)
+    return success_response(data={
+        "id": node.id,
+        "title": node.title,
+        "updated_at": node.updated_at.isoformat() if node.updated_at else None
+    })
+
+
+@router.delete("/nodes/{node_id}")
+async def delete_star_node(
+    node_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """删除节点"""
+    service = StarService(db)
+    await service.delete_node(node_id, current_user["id"])
+    return success_response(message="节点已删除")
+
+
+@router.post("/nodes/{node_id}/expand")
+async def expand_star_node(
+    node_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """展开节点（更新is_expanded=true）"""
+    service = StarService(db)
+    node = await service.update_expand_state(node_id, current_user["id"], True)
+    return success_response(data={"id": node.id, "is_expanded": node.is_expanded})
+
+
+@router.post("/nodes/{node_id}/collapse")
+async def collapse_star_node(
+    node_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """折叠节点（更新is_expanded=false）"""
+    service = StarService(db)
+    node = await service.update_expand_state(node_id, current_user["id"], False)
+    return success_response(data={"id": node.id, "is_expanded": node.is_expanded})
+
+
+@router.post("/nodes/{node_id}/move")
+async def move_star_node(
+    node_id: str,
+    x: float,
+    y: float,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """移动节点位置"""
+    service = StarService(db)
+    node = await service.update_position(node_id, current_user["id"], x, y)
+    return success_response(data={
+        "id": node.id,
+        "position_x": node.position_x,
+        "position_y": node.position_y
+    })
+
+
+# ========== 边管理路由 ==========
+
+@router.get("/graphs/{graph_id}/edges")
+async def get_star_edges(
+    graph_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """获取星图的所有边"""
+    service = StarService(db)
+    edges = await service.get_edges(graph_id, current_user["id"])
+    return success_response(data=[{
+        "id": e.id,
+        "source": e.source,
+        "target": e.target,
+        "relation_type": e.relation_type,
+        "weight": e.weight,
+        "label": e.label
+    } for e in edges])
+
+
+@router.post("/edges")
+async def create_star_edge(
+    request: CreateEdgeRequest,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """创建边"""
+    service = StarService(db)
+    edge = await service.create_edge(request.graph_id, current_user["id"], {
+        "source": request.source,
+        "target": request.target,
+        "relation_type": request.relation_type,
+        "weight": request.weight,
+        "label": request.label
+    })
+    return success_response(data={
+        "id": edge.id,
+        "source": edge.source,
+        "target": edge.target
+    })
+
+
+@router.delete("/edges/{edge_id}")
+async def delete_star_edge(
+    edge_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db_session)
+):
+    """删除边"""
+    service = StarService(db)
+    await service.delete_edge(edge_id, current_user["id"])
+    return success_response(message="边已删除")
