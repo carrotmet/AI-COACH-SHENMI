@@ -166,6 +166,50 @@
                 }
             });
         }
+        
+        // 信息栏收缩/展开按钮
+        const btnToggleInfo = document.getElementById('btn-toggle-info');
+        if (btnToggleInfo) {
+            btnToggleInfo.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const infoBar = document.getElementById('info-bar');
+                if (infoBar) {
+                    infoBar.classList.toggle('star-info-bar--collapsed');
+                }
+            });
+        }
+        
+        // 信息栏点击展开（当收起时）
+        const infoBar = document.getElementById('info-bar');
+        if (infoBar) {
+            infoBar.addEventListener('click', (e) => {
+                if (infoBar.classList.contains('star-info-bar--collapsed')) {
+                    infoBar.classList.remove('star-info-bar--collapsed');
+                }
+            });
+        }
+        
+        // 图例收缩/展开按钮
+        const btnToggleLegend = document.getElementById('btn-toggle-legend');
+        if (btnToggleLegend) {
+            btnToggleLegend.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const legend = document.getElementById('legend');
+                if (legend) {
+                    legend.classList.toggle('star-legend--collapsed');
+                }
+            });
+        }
+        
+        // 图例点击展开（当收起时）
+        const legend = document.getElementById('legend');
+        if (legend) {
+            legend.addEventListener('click', (e) => {
+                if (legend.classList.contains('star-legend--collapsed')) {
+                    legend.classList.remove('star-legend--collapsed');
+                }
+            });
+        }
 
         // 控制按钮
         elements.btnZoomIn?.addEventListener('click', () => {

@@ -191,11 +191,61 @@
             window.location.href = '/login.html';
         }
 
+        // 底部导航自动隐藏管理
+        let bottomNavHideTimeout = null;
+        let lastScrollY = 0;
+        
+        function initBottomNavAutoHide() {
+            const messageInput = document.getElementById('messageInput');
+            const messagesContainer = document.getElementById('messagesContainer');
+            const bottomNav = document.querySelector('.bottom-nav');
+            
+            if (!bottomNav) return;
+            
+            // 输入框聚焦时隐藏底部导航
+            if (messageInput) {
+                messageInput.addEventListener('focus', () => {
+                    bottomNav.classList.add('bottom-nav--hidden');
+                });
+                
+                messageInput.addEventListener('blur', () => {
+                    // 延迟显示，避免键盘收起时的闪烁
+                    setTimeout(() => {
+                        bottomNav.classList.remove('bottom-nav--hidden');
+                    }, 300);
+                });
+            }
+            
+            // 滚动时自动隐藏/显示
+            if (messagesContainer) {
+                messagesContainer.addEventListener('scroll', () => {
+                    const currentScrollY = messagesContainer.scrollTop;
+                    
+                    // 向上滚动显示，向下滚动隐藏
+                    if (currentScrollY < lastScrollY) {
+                        bottomNav.classList.remove('bottom-nav--hidden');
+                    } else if (currentScrollY > lastScrollY + 10) {
+                        bottomNav.classList.add('bottom-nav--hidden');
+                    }
+                    
+                    lastScrollY = currentScrollY;
+                });
+            }
+            
+            // 点击页面非输入区域显示底部导航
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.chat-input-area') && !e.target.closest('.bottom-nav')) {
+                    bottomNav.classList.remove('bottom-nav--hidden');
+                }
+            });
+        }
+
         // 页面加载完成后加载对话列表
         document.addEventListener('DOMContentLoaded', async () => {
             loadConversationList();
             initInput();
             initChatManager();
+            initBottomNavAutoHide(); // 初始化底部导航自动隐藏
             
             // 检查是否有来自星图的探索建议，如有则自动发送
             const handled = await handlePendingExplorePrompt();

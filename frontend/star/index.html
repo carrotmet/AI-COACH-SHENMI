@@ -116,13 +116,73 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             z-index: 100;
             min-width: 180px;
+            transition: all 0.3s ease;
+        }
+        
+        .star-legend--collapsed {
+            min-width: auto;
+            padding: 12px;
+            cursor: pointer;
+        }
+        
+        .star-legend--collapsed .star-legend__content {
+            display: none;
+        }
+        
+        .star-legend--collapsed .star-legend__header {
+            margin-bottom: 0;
+        }
+        
+        .star-legend--collapsed .star-legend__title-text {
+            display: none;
+        }
+        
+        .star-legend__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 8px;
+        }
+        
+        .star-legend__toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .star-legend__toggle:hover {
+            background: var(--color-bg-secondary);
+        }
+        
+        .star-legend__toggle svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+        
+        .star-legend--collapsed .star-legend__toggle svg {
+            transform: rotate(180deg);
         }
         
         .star-legend__title {
             font-size: 14px;
             font-weight: 600;
             color: var(--color-text);
-            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .star-legend__icon {
+            font-size: 16px;
         }
         
         .star-legend__item {
@@ -138,6 +198,24 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
+        }
+        
+        /* 移动端图例优化 */
+        @media (max-width: 768px) {
+            .star-legend {
+                top: 12px;
+                right: 12px;
+                max-width: 160px;
+                padding: 12px;
+            }
+            
+            .star-legend--collapsed {
+                padding: 8px;
+            }
+            
+            .star-legend__item {
+                font-size: 12px;
+            }
         }
         
         /* 详情面板 */
@@ -318,6 +396,57 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             z-index: 100;
             max-width: 300px;
+            transition: all 0.3s ease;
+        }
+        
+        .star-info-bar--collapsed {
+            min-width: auto;
+            padding: 12px;
+            cursor: pointer;
+        }
+        
+        .star-info-bar--collapsed .star-info-bar__content {
+            display: none;
+        }
+        
+        .star-info-bar__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .star-info-bar__toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+            margin-left: auto;
+        }
+        
+        .star-info-bar__toggle:hover {
+            background: var(--color-bg-secondary);
+        }
+        
+        .star-info-bar__toggle svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+        
+        .star-info-bar--collapsed .star-info-bar__toggle svg {
+            transform: rotate(180deg);
+        }
+        
+        .star-info-bar__icon {
+            font-size: 20px;
+            margin-right: 4px;
         }
         
         .star-info-bar__title {
@@ -330,6 +459,28 @@
         .star-info-bar__desc {
             font-size: 13px;
             color: var(--color-text-secondary);
+        }
+        
+        /* 移动端信息栏优化 */
+        @media (max-width: 768px) {
+            .star-info-bar {
+                top: 12px;
+                left: 12px;
+                max-width: 200px;
+                padding: 12px 16px;
+            }
+            
+            .star-info-bar--collapsed {
+                padding: 8px;
+            }
+            
+            .star-info-bar__title {
+                font-size: 14px;
+            }
+            
+            .star-info-bar__desc {
+                font-size: 12px;
+            }
         }
         
         /* 空状态 */
@@ -448,8 +599,18 @@
             
             <!-- 信息栏 -->
             <div class="star-info-bar" id="info-bar" style="display: none;">
-                <div class="star-info-bar__title">我的性格优势星图</div>
-                <div class="star-info-bar__desc">基于 VIA 测评结果的可视化呈现</div>
+                <div class="star-info-bar__header">
+                    <span class="star-info-bar__icon">🌟</span>
+                    <button class="star-info-bar__toggle" id="btn-toggle-info" title="收起/展开">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="star-info-bar__content">
+                    <div class="star-info-bar__title">我的性格优势星图</div>
+                    <div class="star-info-bar__desc">基于 VIA 测评结果的可视化呈现</div>
+                </div>
             </div>
             
             <!-- 画布控制 -->
@@ -493,30 +654,42 @@
             
             <!-- 图例 -->
             <div class="star-legend" id="legend" style="display: none;">
-                <div class="star-legend__title">美德类别</div>
-                <div class="star-legend__item">
-                    <div class="star-legend__dot" style="background: #4A90D9;"></div>
-                    <span>智慧</span>
+                <div class="star-legend__header">
+                    <div class="star-legend__title">
+                        <span class="star-legend__icon">📊</span>
+                        <span class="star-legend__title-text">美德类别</span>
+                    </div>
+                    <button class="star-legend__toggle" id="btn-toggle-legend" title="收起/展开">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
                 </div>
-                <div class="star-legend__item">
-                    <div class="star-legend__dot" style="background: #50C878;"></div>
-                    <span>勇气</span>
-                </div>
-                <div class="star-legend__item">
-                    <div class="star-legend__dot" style="background: #FF6B9D;"></div>
-                    <span>仁爱</span>
-                </div>
-                <div class="star-legend__item">
-                    <div class="star-legend__dot" style="background: #F39C12;"></div>
-                    <span>正义</span>
-                </div>
-                <div class="star-legend__item">
-                    <div class="star-legend__dot" style="background: #9B59B6;"></div>
-                    <span>节制</span>
-                </div>
-                <div class="star-legend__item">
-                    <div class="star-legend__dot" style="background: #1ABC9C;"></div>
-                    <span>超越</span>
+                <div class="star-legend__content">
+                    <div class="star-legend__item">
+                        <div class="star-legend__dot" style="background: #4A90D9;"></div>
+                        <span>智慧</span>
+                    </div>
+                    <div class="star-legend__item">
+                        <div class="star-legend__dot" style="background: #50C878;"></div>
+                        <span>勇气</span>
+                    </div>
+                    <div class="star-legend__item">
+                        <div class="star-legend__dot" style="background: #FF6B9D;"></div>
+                        <span>仁爱</span>
+                    </div>
+                    <div class="star-legend__item">
+                        <div class="star-legend__dot" style="background: #F39C12;"></div>
+                        <span>正义</span>
+                    </div>
+                    <div class="star-legend__item">
+                        <div class="star-legend__dot" style="background: #9B59B6;"></div>
+                        <span>节制</span>
+                    </div>
+                    <div class="star-legend__item">
+                        <div class="star-legend__dot" style="background: #1ABC9C;"></div>
+                        <span>超越</span>
+                    </div>
                 </div>
             </div>
         </div>

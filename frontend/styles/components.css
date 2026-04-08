@@ -854,6 +854,12 @@ select.form-control {
   align-items: center;
   z-index: var(--z-fixed);
   padding-bottom: env(safe-area-inset-bottom);
+  transition: transform 0.3s ease;
+}
+
+/* 底部导航隐藏状态 */
+.bottom-nav--hidden {
+  transform: translateY(100%);
 }
 
 .bottom-nav__item {
