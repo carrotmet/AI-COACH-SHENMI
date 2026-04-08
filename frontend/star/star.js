@@ -31,6 +31,7 @@
         btnZoomOut: document.getElementById('btn-zoom-out'),
         btnReset: document.getElementById('btn-reset'),
         btnAddNode: document.getElementById('btn-add-node'),
+        btnSaveNodes: document.getElementById('btn-save-nodes'),
         btnClosePanel: document.getElementById('btn-close-panel')
     };
 
@@ -152,6 +153,18 @@
             });
         } else {
             console.error('[星图] 未找到添加节点按钮');
+        }
+        
+        // 保存节点按钮
+        if (elements.btnSaveNodes) {
+            elements.btnSaveNodes.addEventListener('click', () => {
+                console.log('[星图] 保存节点按钮被点击');
+                if (tempNodes.size > 0) {
+                    saveAllTempNodes();
+                } else {
+                    showToast('没有需要保存的临时节点', 'info');
+                }
+            });
         }
 
         // 控制按钮
@@ -284,11 +297,28 @@
      * 渲染星图
      */
     function renderGraph(data) {
+        console.log('[星图] renderGraph 被调用');
+        
+        // 防御性检查
+        if (!data) {
+            console.error('[星图] renderGraph: data 为空');
+            showEmptyState();
+            return;
+        }
+        
         const { nodes, edges } = data;
         
+        if (!nodes || !Array.isArray(nodes) || nodes.length === 0) {
+            console.error('[星图] renderGraph: nodes 无效', nodes);
+            showEmptyState();
+            return;
+        }
+        
+        console.log('[星图] 渲染节点数:', nodes.length, '边数:', edges ? edges.length : 0);
+        
         // 为节点计算初始位置（如果没有）
-        const canvasWidth = elements.canvas.offsetWidth;
-        const canvasHeight = elements.canvas.offsetHeight;
+        const canvasWidth = elements.canvas.offsetWidth || 800;
+        const canvasHeight = elements.canvas.offsetHeight || 600;
         const centerX = canvasWidth / 2;
         const centerY = canvasHeight / 2;
         
@@ -311,17 +341,17 @@
             
             if (x == null || y == null) {
                 const level = node.level || 3;
-                const levelNodes = nodesByLevel[level];
+                const levelNodes = nodesByLevel[level] || [];
                 const nodeIndex = levelNodes.findIndex(n => n.index === index);
-                const totalInLevel = levelNodes.length;
+                const totalInLevel = levelNodes.length || 1;
                 
                 // 根据层级设置半径
-                const radius = level === 1 ? 0 : level === 2 ? 150 : 300;
+                const radius = level === 0 ? 0 : level === 1 ? 100 : level === 2 ? 200 : 300;
                 
-                if (level === 1) {
-                    // 根节点在中心
-                    x = centerX;
-                    y = centerY;
+                if (level === 0 || level === 1) {
+                    // 根节点/第一层在中心附近错开
+                    x = centerX + (Math.random() - 0.5) * 50;
+                    y = centerY + (Math.random() - 0.5) * 50;
                 } else {
                     // 其他节点按角度分布
                     const angle = (2 * Math.PI * nodeIndex) / totalInLevel - Math.PI / 2;
@@ -382,45 +412,60 @@
      * 初始化G6图实例
      */
     function initG6Graph(nodes, edges) {
-        // 如果已存在，先销毁
-        if (graph) {
-            graph.destroy();
+        console.log('[星图] initG6Graph 被调用, 节点数:', nodes.length);
+        
+        // 防御性检查
+        if (!nodes || nodes.length === 0) {
+            console.error('[星图] initG6Graph: 没有节点数据');
+            showEmptyState();
+            return;
         }
+        
+        try {
+            // 如果已存在，先销毁
+            if (graph) {
+                graph.destroy();
+                graph = null;
+            }
 
-        // 检查是否所有节点都有初始位置
-        const hasPositions = nodes.every(n => n.x != null && n.y != null);
+            // 检查是否所有节点都有初始位置
+            const hasPositions = nodes.every(n => n.x != null && n.y != null);
+            console.log('[星图] 节点是否有位置:', hasPositions);
 
-        graph = new G6.Graph({
-            container: 'star-canvas',
-            width: elements.canvas.offsetWidth,
-            height: elements.canvas.offsetHeight,
-            modes: {
-                default: ['drag-canvas', 'zoom-canvas', 'drag-node']
-            },
-            // 如果节点有初始位置，不使用力导向布局
-            layout: hasPositions ? undefined : {
-                type: 'force2',
-                preventOverlap: true,
-                nodeSpacing: 50,
-                edgeDistance: 100,
-                linkDistance: 120,
-                nodeStrength: -100,
-                edgeStrength: 0.2,
-                center: [elements.canvas.offsetWidth / 2, elements.canvas.offsetHeight / 2]
-            },
-            defaultNode: {
-                style: {
-                    shadowColor: 'rgba(0,0,0,0.1)',
-                    shadowBlur: 10,
-                    shadowOffsetX: 0,
-                    shadowOffsetY: 4
-                }
-            },
-            defaultEdge: {
-                style: {
-                    opacity: 0.4
-                }
-            },
+            const width = elements.canvas.offsetWidth || 800;
+            const height = elements.canvas.offsetHeight || 600;
+
+            graph = new G6.Graph({
+                container: 'star-canvas',
+                width: width,
+                height: height,
+                modes: {
+                    default: ['drag-canvas', 'zoom-canvas', 'drag-node']
+                },
+                // 如果节点有初始位置，不使用力导向布局
+                layout: hasPositions ? undefined : {
+                    type: 'force2',
+                    preventOverlap: true,
+                    nodeSpacing: 50,
+                    edgeDistance: 100,
+                    linkDistance: 120,
+                    nodeStrength: -100,
+                    edgeStrength: 0.2,
+                    center: [width / 2, height / 2]
+                },
+                defaultNode: {
+                    style: {
+                        shadowColor: 'rgba(0,0,0,0.1)',
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 4
+                    }
+                },
+                defaultEdge: {
+                    style: {
+                        opacity: 0.4
+                    }
+                },
             nodeStateStyles: {
                 selected: {
                     stroke: '#1E3A5F',
@@ -447,14 +492,24 @@
         // 加载数据
         graph.data({ nodes, edges });
         graph.render();
+        
+        console.log('[星图] G6 图渲染完成');
 
         // 绑定事件
         bindGraphEvents();
 
         // 初始适配视图
         setTimeout(() => {
-            graph.fitView(20);
+            if (graph) {
+                graph.fitView(20);
+                console.log('[星图] 视图适配完成');
+            }
         }, 500);
+        
+        } catch (error) {
+            console.error('[星图] initG6Graph 失败:', error);
+            showError('星图初始化失败: ' + error.message);
+        }
     }
 
     /**
@@ -1914,6 +1969,11 @@
      * 更新临时节点警告
      */
     function updateTempNodesWarning() {
+        // 控制保存按钮的显示/隐藏
+        if (elements.btnSaveNodes) {
+            elements.btnSaveNodes.style.display = tempNodes.size > 0 ? 'flex' : 'none';
+        }
+        
         // 检查是否已存在警告元素
         let warningEl = document.getElementById('temp-nodes-warning');
         
@@ -2097,6 +2157,7 @@
     }
 
     function showGraphUI() {
+        if (elements.loading) elements.loading.style.display = 'none';
         if (elements.emptyState) elements.emptyState.style.display = 'none';
         if (elements.infoBar) elements.infoBar.style.display = 'block';
         if (elements.controls) elements.controls.style.display = 'flex';
