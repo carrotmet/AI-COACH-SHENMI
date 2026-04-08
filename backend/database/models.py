@@ -741,3 +741,84 @@ class Notification(Base):
     
     # 关系定义
     user = relationship("User", back_populates="notifications")
+
+
+# =====================================================
+# 9. 星图系统相关表 (Star Map 3.0)
+# =====================================================
+
+class StarGraph(Base):
+    """星图表 - 管理用户的多个星图"""
+    __tablename__ = "star_graphs"
+    
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(100), nullable=False)
+    type = Column(String(20), default="main")  # main/scene
+    source = Column(String(20), default="manual")  # via/manual/ai
+    is_default = Column(Boolean, default=False)
+    node_count = Column(Integer, default=0)
+    created_at = Column(DateTime, default=func.current_timestamp())
+    updated_at = Column(DateTime, default=func.current_timestamp(), onupdate=func.current_timestamp())
+    
+    # 关系
+    nodes = relationship("StarNode", back_populates="graph", cascade="all, delete-orphan")
+    edges = relationship("StarEdge", back_populates="graph", cascade="all, delete-orphan")
+
+
+class StarNode(Base):
+    """星图节点表 - 存储持久化节点"""
+    __tablename__ = "star_nodes"
+    
+    # 核心字段（与StarNode Pydantic模型对齐）
+    id = Column(String(36), primary_key=True)
+    graph_id = Column(String(36), ForeignKey("star_graphs.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    node_type = Column(String(20), nullable=False, index=True)
+    title = Column(String(100), nullable=False)
+    description = Column(Text)
+    category = Column(String(50), index=True)
+    level = Column(Integer, nullable=False)
+    parent_id = Column(String(36), ForeignKey("star_nodes.id", ondelete="SET NULL"), index=True)
+    size = Column(Integer, default=40)
+    color = Column(String(7), default="#4A90D9")
+    shape = Column(String(20), default="circle")
+    score = Column(Float)
+    rank = Column(Integer)
+    _metadata = Column("metadata", JSON, default={})
+    
+    # 状态字段
+    is_expanded = Column(Boolean, default=False)
+    position_x = Column(Float)
+    position_y = Column(Float)
+    
+    # 时间戳
+    created_at = Column(DateTime, default=func.current_timestamp())
+    updated_at = Column(DateTime, default=func.current_timestamp(), onupdate=func.current_timestamp())
+    
+    # 关系
+    graph = relationship("StarGraph", back_populates="nodes")
+    parent = relationship("StarNode", remote_side=[id], backref="children")
+
+
+class StarEdge(Base):
+    """星图边表 - 存储节点关系"""
+    __tablename__ = "star_edges"
+    
+    # 核心字段（与StarEdge Pydantic模型对齐）
+    id = Column(String(36), primary_key=True)
+    graph_id = Column(String(36), ForeignKey("star_graphs.id", ondelete="CASCADE"), nullable=False, index=True)
+    source = Column(String(36), ForeignKey("star_nodes.id", ondelete="CASCADE"), nullable=False, index=True)
+    target = Column(String(36), ForeignKey("star_nodes.id", ondelete="CASCADE"), nullable=False, index=True)
+    relation_type = Column(String(20), nullable=False, index=True)
+    weight = Column(Float, default=1.0)
+    label = Column(String(50))
+    created_at = Column(DateTime, default=func.current_timestamp())
+    
+    # 关系
+    graph = relationship("StarGraph", back_populates="edges")
+    
+    # 唯一约束：避免重复边
+    __table_args__ = (
+        CheckConstraint("weight BETWEEN 0 AND 1", name="check_edge_weight"),
+    )

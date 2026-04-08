@@ -526,6 +526,47 @@ const subscriptionAPI = {
 
 const starAPI = {
     /**
+     * 获取星图列表
+     * @returns {Promise<Array>} 星图列表
+     */
+    getGraphs() {
+        return request('/star/graphs');
+    },
+
+    /**
+     * 创建星图
+     * @param {string} name - 星图名称
+     * @param {string} type - 星图类型 (main/sub)
+     * @param {boolean} isDefault - 是否设为默认
+     * @returns {Promise<object>} 创建的星图
+     */
+    createGraph(name, type = 'main', isDefault = true) {
+        return request('/star/graphs', {
+            method: 'POST',
+            body: { name, type, is_default: isDefault }
+        });
+    },
+
+    /**
+     * 获取星图详情
+     * @param {string} graphId - 星图ID
+     * @returns {Promise<object>} 星图详情
+     */
+    getGraphDetail(graphId) {
+        return request(`/star/graphs/${graphId}`);
+    },
+
+    /**
+     * 从VIA测评导入星图
+     * @returns {Promise<object>} 导入的星图
+     */
+    importFromVia() {
+        return request('/star/graphs/import-via', {
+            method: 'POST'
+        });
+    },
+
+    /**
      * 获取星图数据
      * @param {number} depth - 展开深度 1-4
      * @returns {Promise<object>} 星图数据
@@ -552,6 +593,87 @@ const starAPI = {
         return request(`/star/node/${nodeId}/expand`, {
             method: 'POST'
         });
+    },
+
+    /**
+     * 创建节点
+     * @param {string} graphId - 星图ID
+     * @param {object} nodeData - 节点数据
+     * @returns {Promise<object>} 创建的节点
+     */
+    createNode(graphId, nodeData) {
+        return request('/star/nodes', {
+            method: 'POST',
+            body: { graph_id: graphId, ...nodeData }
+        });
+    },
+
+    /**
+     * 删除节点
+     * @param {string} nodeId - 节点ID
+     * @returns {Promise<object>} 删除结果
+     */
+    deleteNode(nodeId) {
+        return request(`/star/nodes/${nodeId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    /**
+     * 移动节点
+     * @param {string} nodeId - 节点ID
+     * @param {number} x - X坐标
+     * @param {number} y - Y坐标
+     * @returns {Promise<object>} 移动结果
+     */
+    moveNode(nodeId, x, y) {
+        return request(`/star/nodes/${nodeId}/move?x=${x}&y=${y}`, {
+            method: 'POST'
+        });
+    },
+
+    /**
+     * 展开节点状态
+     * @param {string} nodeId - 节点ID
+     * @returns {Promise<object>} 展开结果
+     */
+    expandNodeState(nodeId) {
+        return request(`/star/nodes/${nodeId}/expand`, {
+            method: 'POST'
+        });
+    },
+
+    /**
+     * 创建边
+     * @param {string} graphId - 星图ID
+     * @param {object} edgeData - 边数据 {source, target, relation_type, weight, label}
+     * @returns {Promise<object>} 创建的边
+     */
+    createEdge(graphId, edgeData) {
+        return request('/star/edges', {
+            method: 'POST',
+            body: { graph_id: graphId, ...edgeData }
+        });
+    },
+
+    /**
+     * 删除边
+     * @param {string} edgeId - 边ID
+     * @returns {Promise<object>} 删除结果
+     */
+    deleteEdge(edgeId) {
+        return request(`/star/edges/${edgeId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    /**
+     * 获取星图的边列表
+     * @param {string} graphId - 星图ID
+     * @returns {Promise<Array>} 边列表
+     */
+    getEdges(graphId) {
+        return request(`/star/graphs/${graphId}/edges`);
     }
 };
 
